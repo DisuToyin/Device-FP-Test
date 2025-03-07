@@ -15,213 +15,212 @@
     <pre id="fingerprintData">Loading...</pre>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async function () {
-            async function detectTorBrowser() {
-                const totalChecks = 7;
-                let score = 0;
+//         document.addEventListener("DOMContentLoaded", async function () {
+//             async function detectTorBrowser() {
+//                 const totalChecks = 7;
+//                 let score = 0;
                 
-                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                if (tz === "Atlantic/Reykjavik") score++;
-                const webGLInfo = getWebGLInfo();
-                if (["Mozilla", "unknown"].includes(webGLInfo.vendor)) score++;
-                if (!window.RTCPeerConnection) score++;
-                if (!navigator.deviceMemory) score++;
-                if (navigator.hardwareConcurrency === 2) score++;
-                if (!navigator.credentials) score++;
-                if (!navigator.geolocation) score++;
+//                 const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+//                 if (tz === "Atlantic/Reykjavik") score++;
+//                 const webGLInfo = getWebGLInfo();
+//                 if (["Mozilla", "unknown"].includes(webGLInfo.vendor)) score++;
+//                 if (!window.RTCPeerConnection) score++;
+//                 if (!navigator.deviceMemory) score++;
+//                 if (navigator.hardwareConcurrency === 2) score++;
+//                 if (!navigator.credentials) score++;
+//                 if (!navigator.geolocation) score++;
 
-                return {
-                    isTor: score >= 6,
-                    isTorAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
-                    details: {
-                        timezoneMatch: tz === "Atlantic/Reykjavik",
-                        webGLVendor: webGLInfo.vendor,
-                        webRTCDisabled: !window.RTCPeerConnection,
-                    },
-                };
-            }
+//                 return {
+//                     isTor: score >= 6,
+//                     isTorAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
+//                     details: {
+//                         timezoneMatch: tz === "Atlantic/Reykjavik",
+//                         webGLVendor: webGLInfo.vendor,
+//                         webRTCDisabled: !window.RTCPeerConnection,
+//                     },
+//                 };
+//             }
 
-            async function detectIncognitoMode() {
-                console.log(navigator)
-                const totalChecks = 7; // Total number of checks
-                let score = 0; // Initialize score
+//             async function detectIncognitoMode() {
+//     const totalChecks = 1;
+//     let score = 0;
 
-                // 1. Check FileSystem API availability
-                const isFileSystemBlocked = await new Promise((resolve) => {
-                    const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
-                    if (!fs) {
-                        resolve(false); // API not supported
-                        return;
-                    }
-                    fs(
-                        window.TEMPORARY,
-                        100,
-                        () => resolve(false), // Not incognito
-                        () => resolve(true)  // Likely incognito
-                    );
-                });
-                if (isFileSystemBlocked) score=score+2;
+//     // Check for quota limitation (Incognito mode usually has lower quota)
+//     if (navigator.storage && navigator.storage.estimate) {
+//         const { quota, usage } = await navigator.storage.estimate();
+//         const availableStorage = quota - (usage || 0);
 
-                // 2. Check localStorage quota
-                const isLocalStorageBlocked = await new Promise((resolve) => {
-                    try {
-                        localStorage.setItem("test", "data");
-                        localStorage.removeItem("test");
-                        resolve(false); // Not incognito
-                    } catch (e) {
-                        resolve(true); // Likely incognito
-                    }
-                });
-                if (isLocalStorageBlocked) score++;
+//         console.log({quota, usage, availableStorage})
+        
+//         if (availableStorage < 120 * 1024 * 1024) score++; // Less than 120MB available storage
+//     }
 
-                // 3. Check IndexedDB availability
-                const isIndexedDBBlocked = !window.indexedDB;
-                if (isIndexedDBBlocked) score++;
+//     return {
+//         isIncognito: score >= 1, // If available storage is below 120MB, it's likely incognito
+//         incognitoAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
+//         details: {
+//             lowAvailableStorage: score >= 1
+//         }
+//     };
+// }
 
-                // 4. Check Service Worker registration
-                const isServiceWorkerBlocked = await new Promise((resolve) => {
-                    if (!navigator.serviceWorker) {
-                        resolve(true); // Service Workers not supported
-                        return;
-                    }
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(() => {
-                            navigator.serviceWorker.getRegistration()
-                                .then((registration) => {
-                                    registration.unregister();
-                                    resolve(false); // Not incognito
-                                });
-                        })
-                        .catch(() => resolve(true)); // Likely incognito
-                });
-                if (isServiceWorkerBlocked) score=score+2;
+// navigator.storage.estimate().then(estimate => {
+//     console.log(estimate.usage); // Used storage in bytes
+//     console.log(estimate.usageDetails); // Detailed breakdown
+// });
 
-                // 5. Check navigator.deviceMemory (incognito may restrict this)
-                const isDeviceMemoryRestricted = !navigator.deviceMemory || navigator.deviceMemory < 1;
-                if (isDeviceMemoryRestricted) score++;
+// // Example usage
+// // detectIncognitoMode().then(result => console.log(result));
+// async function getStorageQuota() {
+//     try {
+//         // Get storage estimate
+//         const estimate = await navigator.storage.estimate();
 
-                
-                // // 6.
-                // const ua = navigator.userAgent.toLowerCase();
-                // if (ua.includes("incognito") || ua.includes("private")) score++;
+//         // Convert bytes to MB
+//         const quotaInMB = (estimate.quota / 1024 / 1024).toFixed(2);
+//         const usageInMB = (estimate.usage / 1024 / 1024).toFixed(2);
 
-                // // 7. Check for quota limitation (Incognito mode usually has lower quota)
-                // if (navigator.storage && navigator.storage.estimate) {
-                //     const { quota } = await navigator.storage.estimate();
-                //     if (quota && quota < 120000000) score++; // Less than ~120MB storage
-                // }
+//         // Log the quota and usage
+//         console.log(`Quota: ${quotaInMB} MB`);
+//         console.log(`Usage: ${usageInMB} MB`);
 
-                // // 8. WebRTC check (Incognito mode may disable WebRTC features)
-                // if (!window.RTCPeerConnection) score++;
+//         // Calculate available space
+//         const availableSpaceInMB = (estimate.quota - estimate.usage) / 1024 / 1024;
+//         console.log(`Available Space: ${availableSpaceInMB.toFixed(2)} MB`);
 
-                // Determine if the user is in incognito mode based on the score
-                const isIncognito = score >= 4; // Threshold for incognito detection
+//         // Return the quota and usage in an object
+//         return {
+//             quota: estimate.quota,
+//             usage: estimate.usage,
+//             quotaInMB: quotaInMB,
+//             usageInMB: usageInMB,
+//             availableSpaceInMB: availableSpaceInMB.toFixed(2),
+//         };
+//     } catch (error) {
+//         console.error("Error getting storage quota:", error);
+//         return null;
+//     }
+// }
 
-                return {
-                    isIncognito,
-                    incognitoAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
-                    details: {
-                        fileSystemBlocked: isFileSystemBlocked,
-                        localStorageBlocked: isLocalStorageBlocked,
-                        indexedDBBlocked: isIndexedDBBlocked,
-                        serviceWorkerBlocked: isServiceWorkerBlocked,
-                        deviceMemoryRestricted: isDeviceMemoryRestricted,
-                        deviceMemorVal: navigator?.deviceMemory,
-                        
-                    },
-                };
-            }
+// function isIncognito() {
+//     return new Promise((resolve) => {
+//         const dbName = "testDB";
+//         const request = indexedDB.open(dbName);
 
-            // Example usage
-            detectIncognitoMode().then((result) => {
-                console.log(result);
-            });
+//         request.onsuccess = () => {
+//             indexedDB.deleteDatabase(dbName);
+//             resolve(false); // Not in incognito mode
+//         };
 
-            function getNavigatorJSON() {
-    const navigatorData = {};
+//         request.onerror = () => {
+//             resolve(true); // Likely in incognito mode
+//         };
+//     });
+// }
+
+// isIncognito().then((result) => {
+//     console.log(result ? "Incognito Mode" : "Normal Mode");
+// });
+
+// // Example usage
+// getStorageQuota().then((result) => {
+//     if (result) {
+//         console.log("Storage Quota Details:", result);
+//     }
+
+
+// });
+        
+//             function getNavigatorJSON() {
+//     const navigatorData = {};
     
-    for (const key in navigator) {
-        try {
-            let value = navigator[key];
+//     for (const key in navigator) {
+//         try {
+//             let value = navigator[key];
 
-            // If the value is a function, call it (if safe) or ignore
-            if (typeof value === "function") {
-                continue;
-            }
+//             // If the value is a function, call it (if safe) or ignore
+//             if (typeof value === "function") {
+//                 continue;
+//             }
 
-            // Handle complex objects by converting them to JSON if possible
-            if (typeof value === "object" && value !== null) {
-                value = JSON.stringify(value, null, 2);
-            }
+//             // Handle complex objects by converting them to JSON if possible
+//             if (typeof value === "object" && value !== null) {
+//                 value = JSON.stringify(value, null, 2);
+//             }
 
-            navigatorData[key] = value;
-        } catch (e) {
-            navigatorData[key] = "Access Denied";
-        }
-    }
+//             navigatorData[key] = value;
+//         } catch (e) {
+//             navigatorData[key] = "Access Denied";
+//         }
+//     }
 
-    console.log(JSON.stringify(navigatorData, null, 2));
-}
+//     console.log(JSON.stringify(navigatorData, null, 2));
+// }
 
-getNavigatorJSON();
+// getNavigatorJSON();
 
 
-            const getWebGLInfo = () => {
-                try {
-                    const canvas = document.createElement("canvas");
-                    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-                    if (!gl) return { vendor: "unsupported", renderer: "unsupported" };
-                    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-                    return debugInfo
-                        ? {
-                            vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
-                            renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
-                        }
-                        : { vendor: "unknown", renderer: "unknown" };
-                } catch {
-                    return { vendor: "error", renderer: "error" };
-                }
-            };
+//             const getWebGLInfo = () => {
+//                 try {
+//                     const canvas = document.createElement("canvas");
+//                     const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+//                     if (!gl) return { vendor: "unsupported", renderer: "unsupported" };
+//                     const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+//                     return debugInfo
+//                         ? {
+//                             vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
+//                             renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
+//                         }
+//                         : { vendor: "unknown", renderer: "unknown" };
+//                 } catch {
+//                     return { vendor: "error", renderer: "error" };
+//                 }
+//             };
 
-            function updateElement(id, content) {
-                document.getElementById(id).innerText = content;
-            }
+//             function updateElement(id, content) {
+//                 document.getElementById(id).innerText = content;
+//             }
 
-            ThumbmarkJS.includeComponent('browser_', detectTorBrowser);
-            ThumbmarkJS.setOption('include', [
-                'webgl', 
-                'permission', 
-                'audio.channelCountMode', 
-                'audio.maxChannels', 
-                'audio.oscillator', 
-                'fonts', 
-                'browser_',
-                'hardware.architecture',
-                'hardware.videocard'
-            ]);
+//             ThumbmarkJS.includeComponent('browser_', detectTorBrowser);
+//             ThumbmarkJS.setOption('include', [
+//                 'webgl', 
+//                 'permission', 
+//                 'audio.channelCountMode', 
+//                 'audio.maxChannels', 
+//                 'audio.oscillator', 
+//                 'fonts', 
+//                 'browser_',
+//                 'hardware.architecture',
+//                 'hardware.videocard'
+//             ]);
 
-            // ThumbmarkJS.setOption('exclude', [
-            //     'audio.sampleHash', 
-            //     'hardware.deviceMemory',
-            //     'hardware.jsHeapSizeLimit',
-            //     'browser_.details.deviceMemory'
-            // ]);
+//             // ThumbmarkJS.setOption('exclude', [
+//             //     'audio.sampleHash', 
+//             //     'hardware.deviceMemory',
+//             //     'hardware.jsHeapSizeLimit',
+//             //     'browser_.details.deviceMemory'
+//             // ]);
 
-            const fetchFingerprint = async () => {
-                const fp = await ThumbmarkJS.getFingerprint();
-                updateElement("fingerprint", fp);
-                console.log(fp);
-            };
+//             const fetchFingerprint = async () => {
+//                 const fp = await ThumbmarkJS.getFingerprint();
+//                 updateElement("fingerprint", fp);
+//                 console.log(fp);
+//             };
 
-            const fetchFingerprintData = async () => {
-                const fpData = await ThumbmarkJS.getFingerprintData();
-                updateElement("fingerprintData", JSON.stringify(fpData, null, 2));
-                console.log(fpData);
-            };
+//             const fetchFingerprintData = async () => {
+//                 const fpData = await ThumbmarkJS.getFingerprintData();
+//                 updateElement("fingerprintData", JSON.stringify(fpData, null, 2));
+//                 console.log(fpData);
+//             };
 
-            fetchFingerprint();
-            fetchFingerprintData();
-        });
+//             fetchFingerprint();
+//             fetchFingerprintData();
+//         });
+
+navigator.storage.estimate().then(estimate => {
+    console.log({x: estimate.usage}); // Used storage in bytes
+    console.log({y: estimate.usageDetails}); // Detailed breakdown
+});
     </script>
 </body>
 </html>
