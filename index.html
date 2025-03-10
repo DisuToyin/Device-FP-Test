@@ -15,31 +15,31 @@
     <pre id="fingerprintData">Loading...</pre>
 
     <script>
-//         document.addEventListener("DOMContentLoaded", async function () {
-//             async function detectTorBrowser() {
-//                 const totalChecks = 7;
-//                 let score = 0;
+        document.addEventListener("DOMContentLoaded", async function () {
+            async function detectTorBrowser() {
+                const totalChecks = 7;
+                let score = 0;
                 
-//                 const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-//                 if (tz === "Atlantic/Reykjavik") score++;
-//                 const webGLInfo = getWebGLInfo();
-//                 if (["Mozilla", "unknown"].includes(webGLInfo.vendor)) score++;
-//                 if (!window.RTCPeerConnection) score++;
-//                 if (!navigator.deviceMemory) score++;
-//                 if (navigator.hardwareConcurrency === 2) score++;
-//                 if (!navigator.credentials) score++;
-//                 if (!navigator.geolocation) score++;
+                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                if (tz === "Atlantic/Reykjavik") score++;
+                const webGLInfo = getWebGLInfo();
+                if (["Mozilla", "unknown"].includes(webGLInfo.vendor)) score++;
+                if (!window.RTCPeerConnection) score++;
+                if (!navigator.deviceMemory) score++;
+                if (navigator.hardwareConcurrency === 2) score++;
+                if (!navigator.credentials) score++;
+                if (!navigator.geolocation) score++;
 
-//                 return {
-//                     isTor: score >= 6,
-//                     isTorAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
-//                     details: {
-//                         timezoneMatch: tz === "Atlantic/Reykjavik",
-//                         webGLVendor: webGLInfo.vendor,
-//                         webRTCDisabled: !window.RTCPeerConnection,
-//                     },
-//                 };
-//             }
+                return {
+                    isTor: score >= 6,
+                    isTorAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
+                    details: {
+                        timezoneMatch: tz === "Atlantic/Reykjavik",
+                        webGLVendor: webGLInfo.vendor,
+                        webRTCDisabled: !window.RTCPeerConnection,
+                    },
+                };
+            }
 
 //             async function detectIncognitoMode() {
 //     const totalChecks = 1;
@@ -69,7 +69,6 @@
 //     console.log(estimate.usageDetails); // Detailed breakdown
 // });
 
-// // Example usage
 // // detectIncognitoMode().then(result => console.log(result));
 // async function getStorageQuota() {
 //     try {
@@ -130,97 +129,66 @@
 
 
 // });
-        
-//             function getNavigatorJSON() {
-//     const navigatorData = {};
-    
-//     for (const key in navigator) {
-//         try {
-//             let value = navigator[key];
-
-//             // If the value is a function, call it (if safe) or ignore
-//             if (typeof value === "function") {
-//                 continue;
-//             }
-
-//             // Handle complex objects by converting them to JSON if possible
-//             if (typeof value === "object" && value !== null) {
-//                 value = JSON.stringify(value, null, 2);
-//             }
-
-//             navigatorData[key] = value;
-//         } catch (e) {
-//             navigatorData[key] = "Access Denied";
-//         }
-//     }
-
-//     console.log(JSON.stringify(navigatorData, null, 2));
-// }
-
-// getNavigatorJSON();
 
 
-//             const getWebGLInfo = () => {
-//                 try {
-//                     const canvas = document.createElement("canvas");
-//                     const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-//                     if (!gl) return { vendor: "unsupported", renderer: "unsupported" };
-//                     const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-//                     return debugInfo
-//                         ? {
-//                             vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
-//                             renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
-//                         }
-//                         : { vendor: "unknown", renderer: "unknown" };
-//                 } catch {
-//                     return { vendor: "error", renderer: "error" };
-//                 }
-//             };
 
-//             function updateElement(id, content) {
-//                 document.getElementById(id).innerText = content;
-//             }
+            const getWebGLInfo = () => {
+                try {
+                    const canvas = document.createElement("canvas");
+                    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+                    if (!gl) return { vendor: "unsupported", renderer: "unsupported" };
+                    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+                    return debugInfo
+                        ? {
+                            vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
+                            renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
+                        }
+                        : { vendor: "unknown", renderer: "unknown" };
+                } catch {
+                    return { vendor: "error", renderer: "error" };
+                }
+            };
 
-//             ThumbmarkJS.includeComponent('browser_', detectTorBrowser);
-//             ThumbmarkJS.setOption('include', [
-//                 'webgl', 
-//                 'permission', 
-//                 'audio.channelCountMode', 
-//                 'audio.maxChannels', 
-//                 'audio.oscillator', 
-//                 'fonts', 
-//                 'browser_',
-//                 'hardware.architecture',
-//                 'hardware.videocard'
-//             ]);
+            function updateElement(id, content) {
+                document.getElementById(id).innerText = content;
+            }
 
-//             // ThumbmarkJS.setOption('exclude', [
-//             //     'audio.sampleHash', 
-//             //     'hardware.deviceMemory',
-//             //     'hardware.jsHeapSizeLimit',
-//             //     'browser_.details.deviceMemory'
-//             // ]);
+            ThumbmarkJS.includeComponent('browser_', detectTorBrowser);
+            ThumbmarkJS.setOption('include', [
+                'webgl', 
+                'permission', 
+                'audio.channelCountMode', 
+                'audio.maxChannels', 
+                'audio.oscillator', 
+                'fonts', 
+                'browser_',
+                'hardware.architecture',
+                'hardware.videocard'
+            ]);
 
-//             const fetchFingerprint = async () => {
-//                 const fp = await ThumbmarkJS.getFingerprint();
-//                 updateElement("fingerprint", fp);
-//                 console.log(fp);
-//             };
+            // ThumbmarkJS.setOption('exclude', [
+            //     'audio.sampleHash', 
+            //     'hardware.deviceMemory',
+            //     'hardware.jsHeapSizeLimit',
+            //     'browser_.details.deviceMemory'
+            // ]);
 
-//             const fetchFingerprintData = async () => {
-//                 const fpData = await ThumbmarkJS.getFingerprintData();
-//                 updateElement("fingerprintData", JSON.stringify(fpData, null, 2));
-//                 console.log(fpData);
-//             };
+            const fetchFingerprint = async () => {
+                const fp = await ThumbmarkJS.getFingerprint();
+                updateElement("fingerprint", fp);
+                console.log(fp);
+            };
 
-//             fetchFingerprint();
-//             fetchFingerprintData();
-//         });
+            const fetchFingerprintData = async () => {
+                const fpData = await ThumbmarkJS.getFingerprintData();
+                updateElement("fingerprintData", JSON.stringify(fpData, null, 2));
+                console.log(fpData);
+            };
 
-navigator.storage.estimate().then(estimate => {
-    console.log({x: estimate.usage}); // Used storage in bytes
-    console.log({y: estimate.usageDetails}); // Detailed breakdown
-});
+            fetchFingerprint();
+            fetchFingerprintData();
+        });
+
 
 
     </script>
