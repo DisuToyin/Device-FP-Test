@@ -166,12 +166,12 @@
                 'hardware.videocard'
             ]);
 
-            // ThumbmarkJS.setOption('exclude', [
-            //     'audio.sampleHash', 
-            //     'hardware.deviceMemory',
-            //     'hardware.jsHeapSizeLimit',
-            //     'browser_.details.deviceMemory'
-            // ]);
+            ThumbmarkJS.setOption('exclude', [
+                'audio.sampleHash', 
+                'hardware.deviceMemory',
+                'hardware.jsHeapSizeLimit',
+                'browser_.details.deviceMemory'
+            ]);
 
             const fetchFingerprint = async () => {
                 const fp = await ThumbmarkJS.getFingerprint();
