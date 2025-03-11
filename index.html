@@ -14,6 +14,9 @@
     <h2>Fingerprint Data</h2>
     <pre id="fingerprintData">Loading...</pre>
 
+    <h2>Incognito Status</h2>
+    <pre id="incognito">Loading...</pre>
+
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
             async function detectTorBrowser() {
@@ -40,96 +43,6 @@
                     },
                 };
             }
-
-//             async function detectIncognitoMode() {
-//     const totalChecks = 1;
-//     let score = 0;
-
-//     // Check for quota limitation (Incognito mode usually has lower quota)
-//     if (navigator.storage && navigator.storage.estimate) {
-//         const { quota, usage } = await navigator.storage.estimate();
-//         const availableStorage = quota - (usage || 0);
-
-//         console.log({quota, usage, availableStorage})
-        
-//         if (availableStorage < 120 * 1024 * 1024) score++; // Less than 120MB available storage
-//     }
-
-//     return {
-//         isIncognito: score >= 1, // If available storage is below 120MB, it's likely incognito
-//         incognitoAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
-//         details: {
-//             lowAvailableStorage: score >= 1
-//         }
-//     };
-// }
-
-// navigator.storage.estimate().then(estimate => {
-//     console.log(estimate.usage); // Used storage in bytes
-//     console.log(estimate.usageDetails); // Detailed breakdown
-// });
-
-// // detectIncognitoMode().then(result => console.log(result));
-// async function getStorageQuota() {
-//     try {
-//         // Get storage estimate
-//         const estimate = await navigator.storage.estimate();
-
-//         // Convert bytes to MB
-//         const quotaInMB = (estimate.quota / 1024 / 1024).toFixed(2);
-//         const usageInMB = (estimate.usage / 1024 / 1024).toFixed(2);
-
-//         // Log the quota and usage
-//         console.log(`Quota: ${quotaInMB} MB`);
-//         console.log(`Usage: ${usageInMB} MB`);
-
-//         // Calculate available space
-//         const availableSpaceInMB = (estimate.quota - estimate.usage) / 1024 / 1024;
-//         console.log(`Available Space: ${availableSpaceInMB.toFixed(2)} MB`);
-
-//         // Return the quota and usage in an object
-//         return {
-//             quota: estimate.quota,
-//             usage: estimate.usage,
-//             quotaInMB: quotaInMB,
-//             usageInMB: usageInMB,
-//             availableSpaceInMB: availableSpaceInMB.toFixed(2),
-//         };
-//     } catch (error) {
-//         console.error("Error getting storage quota:", error);
-//         return null;
-//     }
-// }
-
-// function isIncognito() {
-//     return new Promise((resolve) => {
-//         const dbName = "testDB";
-//         const request = indexedDB.open(dbName);
-
-//         request.onsuccess = () => {
-//             indexedDB.deleteDatabase(dbName);
-//             resolve(false); // Not in incognito mode
-//         };
-
-//         request.onerror = () => {
-//             resolve(true); // Likely in incognito mode
-//         };
-//     });
-// }
-
-// isIncognito().then((result) => {
-//     console.log(result ? "Incognito Mode" : "Normal Mode");
-// });
-
-// // Example usage
-// getStorageQuota().then((result) => {
-//     if (result) {
-//         console.log("Storage Quota Details:", result);
-//     }
-
-
-// });
-
 
 
             const getWebGLInfo = () => {
@@ -189,7 +102,259 @@
 
             fetchFingerprint();
             fetchFingerprintData();
+
+            async function isIncognito() {
+                if ('storage' in navigator && 'estimate' in navigator.storage){
+                    const {usage, quota} = await navigator.storage.estimate();
+                    const quotaInMib = Math.round(quota / (1024 * 1024));
+                    console.log(`Using ${usage} out of ${quota} bytes`)
+                    console.log({quotaInMib, quota, usage})
+                    if (usage < 120){
+                        console.log('Incognito')
+                    }else {
+                        console.log('Normal')
+                    }
+                }
+            }
+
+            // isIncognito()
+            function detectIncognito() {
+            return new Promise(function (resolve, reject) {
+                let browserName = 'Unknown';
+
+                function __callback(isPrivate) {
+                    resolve({
+                        isPrivate: isPrivate,
+                        browserName: browserName
+                    });
+                }
+
+                function identifyChromium() {
+                    const ua = navigator.userAgent;
+                    if (ua.match(/Chrome/)) {
+                        if (navigator.brave !== undefined) {
+                        return 'Brave';
+                        } else if (ua.match(/Edg/)) {
+                        return 'Edge';
+                        } else if (ua.match(/OPR/)) {
+                        return 'Opera';
+                        }
+                        return 'Chrome';
+                    } else {
+                        return 'Chromium';
+                    }
+                }
+
+                function assertEvalToString(value) {
+                    return value === eval.toString().length;
+                }
+
+                function feid() {
+                    let toFixedEngineID = 0;
+                    let neg = parseInt("-1");
+                    try {
+                        neg.toFixed(neg);
+                    } catch (e) {
+                        toFixedEngineID = e.message.length;
+                    }
+                    return toFixedEngineID;
+                }
+
+                function isSafari() {
+                    return feid() === 44;
+                }
+
+                function isChrome() {
+                    return feid() === 51;
+                }
+
+                function isFirefox() {
+                    return feid() === 25;
+                }
+
+                function isMSIE() {
+                    return (
+                        navigator.msSaveBlob !== undefined && assertEvalToString(39)
+                    );
+                }
+
+                /**
+                 * Safari (Safari for iOS & macOS)
+                 **/
+
+                function newSafariTest() {
+                    const tmp_name = String(Math.random());
+
+                    try {
+                        const db = window.indexedDB.open(tmp_name, 1);
+
+                        db.onupgradeneeded = function (i) {
+                        const res = i.target.result;
+
+                        try {
+                            res.createObjectStore('test', {
+                            autoIncrement: true
+                            }).put(new Blob());
+
+                            __callback(false);
+                        } catch (e) {
+                            let message = e;
+
+                            if (e instanceof Error) {
+                            message = e.message ?? e;
+                            }
+
+                            if (typeof message !== 'string') {
+                            __callback(false); return;
+                            }
+
+                            const matchesExpectedError = message.includes('BlobURLs are not yet supported');
+
+                            __callback(matchesExpectedError); return;
+                        } finally {
+                            res.close();
+                            window.indexedDB.deleteDatabase(tmp_name);
+                        }
+                        };
+                    } catch (e) {
+                        __callback(false);
+                    }
+                }
+
+                function oldSafariTest() {
+                    const openDB = window.openDatabase;
+                    const storage = window.localStorage;
+                    try {
+                        openDB(null, null, null, null);
+                    } catch (e) {
+                        __callback(true); return;
+                    }
+                    try {
+                        storage.setItem('test', '1');
+                        storage.removeItem('test');
+                    } catch (e) {
+                        __callback(true); return;
+                    }
+                    __callback(false);
+                }
+
+                function safariPrivateTest() {
+                    if (navigator.maxTouchPoints !== undefined) {
+                        newSafariTest();
+                    } else {
+                        oldSafariTest();
+                    }
+                }
+
+                /**
+                 * Chrome
+                 **/
+
+                function getQuotaLimit() {
+                    const w = window;
+                    if (
+                        w.performance !== undefined &&
+                        w.performance.memory !== undefined &&
+                        w.performance.memory.jsHeapSizeLimit !== undefined
+                    ) {
+                        return performance.memory.jsHeapSizeLimit;
+                    }
+                    return 1073741824;
+                }
+
+                // >= 76
+                function storageQuotaChromePrivateTest() {
+                    navigator.webkitTemporaryStorage.queryUsageAndQuota(
+                        function (_, quota) {
+                        const quotaInMib = Math.round(quota / (1024 * 1024));
+                        const quotaLimitInMib = Math.round(getQuotaLimit() / (1024 * 1024)) * 2;
+
+                        __callback(quotaInMib < quotaLimitInMib);
+                        },
+                        function (e) {
+                        reject(
+                            new Error(
+                            'detectIncognito somehow failed to query storage quota: ' +
+                                e.message
+                            )
+                        );
+                        }
+                    );
+                }
+
+                // 50 to 75
+                function oldChromePrivateTest() {
+                    const fs = window.webkitRequestFileSystem;
+                    const success = function () {
+                        __callback(false);
+                    };
+                    const error = function () {
+                        __callback(true);
+                    };
+                    fs(0, 1, success, error);
+                    }
+
+                    function chromePrivateTest() {
+                    if (self.Promise !== undefined && self.Promise.allSettled !== undefined) {
+                        storageQuotaChromePrivateTest();
+                    } else {
+                        oldChromePrivateTest();
+                    }
+                }
+
+                /**
+                 * Firefox
+                 **/
+
+                function firefoxPrivateTest() {
+                    __callback(navigator.serviceWorker === undefined);
+                }
+
+                /**
+                 * MSIE
+                 **/
+
+                function msiePrivateTest() {
+                    __callback(window.indexedDB === undefined);
+                }
+
+                function main() {
+                    if (isSafari()) {
+                        browserName = 'Safari';
+                        safariPrivateTest();
+                    } else if (isChrome()) {
+                        browserName = identifyChromium();
+                        chromePrivateTest();
+                    } else if (isFirefox()) {
+                        browserName = 'Firefox';
+                        firefoxPrivateTest();
+                    } else if (isMSIE()) {
+                        browserName = 'Internet Explorer';
+                        msiePrivateTest();
+                    } else {
+                        reject(new Error('detectIncognito cannot determine the browser'));
+                    }
+                }
+
+                main();
+                });
+            }
+
+            if (typeof window !== 'undefined') {
+                window.detectIncognito = detectIncognito;
+            }
+
+
+            detectIncognito().then(result => {
+                console.log(result);
+                updateElement("incognito", JSON.stringify(result, null, 2));
+            }).catch(error => {
+                console.error(error);
+            });
         });
+
+
+
 
 
 
