@@ -67,26 +67,26 @@
             }
 
             ThumbmarkJS.includeComponent('browser_', detectTorBrowser);
-            ThumbmarkJS.setOption('include', [
-                'webgl', 
-                'permission', 
-                'audio.channelCountMode', 
-                'audio.maxChannels', 
-                'audio.oscillator', 
-                'fonts', 
-                'browser_',
-                'hardware.architecture',
-                'hardware.videocard',
-                'system.browser.name',
-                'system.browser.version'
-            ]);
+            // ThumbmarkJS.setOption('include', [
+            //     'webgl', 
+            //     'permission', 
+            //     'audio.channelCountMode', 
+            //     'audio.maxChannels', 
+            //     'audio.oscillator', 
+            //     'fonts', 
+            //     'browser_',
+            //     'hardware.architecture',
+            //     'hardware.videocard',
+            //     'system.browser.name',
+            //     'system.browser.version'
+            // ]);
 
-            ThumbmarkJS.setOption('exclude', [
-                'audio.sampleHash', 
-                'hardware.deviceMemory',
-                'hardware.jsHeapSizeLimit',
-                'browser_.details.deviceMemory'
-            ]);
+            // ThumbmarkJS.setOption('exclude', [
+            //     'audio.sampleHash', 
+            //     'hardware.deviceMemory',
+            //     'hardware.jsHeapSizeLimit',
+            //     'browser_.details.deviceMemory'
+            // ]);
 
             const fetchFingerprint = async () => {
                 const fp = await ThumbmarkJS.getFingerprint();
