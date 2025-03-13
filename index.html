@@ -67,6 +67,13 @@
             }
 
             ThumbmarkJS.includeComponent('browser_', detectTorBrowser);
+            ThumbmarkJS.setOption('exclude', [
+                'audio.sampleHash', 
+                'canvas',
+                'hardware.deviceMemory',
+                'plugins',
+                'browser_.details.deviceMemory'
+            ]);
             // ThumbmarkJS.setOption('include', [
             //     'webgl', 
             //     'permission', 
