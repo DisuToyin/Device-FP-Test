@@ -77,6 +77,7 @@
                 'screen.maxTouchPoints',
                 'system.useragent',
                 'browser_.details.deviceMemory', 
+                'webgl'
                 // 'screen.any-hover',
                 // 'screen.any-pointer',
                 // 'screen.pointer',
@@ -118,19 +119,7 @@
             fetchFingerprint();
             fetchFingerprintData();
 
-            async function isIncognito() {
-                if ('storage' in navigator && 'estimate' in navigator.storage){
-                    const {usage, quota} = await navigator.storage.estimate();
-                    const quotaInMib = Math.round(quota / (1024 * 1024));
-                    console.log(`Using ${usage} out of ${quota} bytes`)
-                    console.log({quotaInMib, quota, usage})
-                    if (usage < 120){
-                        console.log('Incognito')
-                    }else {
-                        console.log('Normal')
-                    }
-                }
-            }
+        
 
             // isIncognito()
             function detectIncognito() {
