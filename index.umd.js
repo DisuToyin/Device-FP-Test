@@ -1284,16 +1284,22 @@
     if (typeof window !== 'undefined') {
         window.detectIncognito = detectIncognito;
     }
-    detectIncognito().then(result => {
-        console.log(result);
-    }).catch(error => {
-        console.error(error);
-    });
-    const botdPromise = load();
-    botdPromise
-        .then((botd) => botd.detect())
-        .then((result) => console.log(result))
-        .catch((error) => console.error(error));
+    async function botDetection() {
+        try {
+            const botd = await load();
+            const result = await botd.detect();
+            // console.log(result);
+            return result;
+        }
+        catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+    // botdPromise
+    //     .then((botd : any) => botd.detect())
+    //     .then((result : any) => console.log(result))
+    //     .catch((error : any) => console.error(error))
     // UTILS 
     /**
      * This code is taken from https://github.com/LinusU/murmur-128/blob/master/index.js
@@ -1484,7 +1490,7 @@
         device: {
             detectIncognito,
             detectTorBrowser,
-            botdPromise,
+            botDetection,
             getDeviceFingerprint
         },
         behaviour: {
@@ -1492,7 +1498,7 @@
         }
     };
 
-    exports.botdPromise = botdPromise;
+    exports.botDetection = botDetection;
     exports.detectIncognito = detectIncognito;
     exports.detectTorBrowser = detectTorBrowser;
     exports.getDeviceFingerprint = getDeviceFingerprint;

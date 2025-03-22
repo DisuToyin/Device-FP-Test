@@ -19,6 +19,10 @@
     <h2>Incognito Status</h2>
     <pre id="incognito">Loading...</pre>
 
+
+    <h2>Bot Detection</h2>
+    <pre id="bot">Loading...</pre>
+
     <script >
         document.addEventListener("DOMContentLoaded", async function () {
 
@@ -34,6 +38,10 @@
      
             const tor = await RayyanJS?.detectTorBrowser();
             updateElement("tor", JSON.stringify(tor, null, 2));
+
+            const botD = await RayyanJS?.botDetection();
+            updateElement("bot", JSON.stringify(botD, null, 2));
+            console.log(botD)
             
         });
 
