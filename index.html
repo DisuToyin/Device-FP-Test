@@ -3,28 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThumbmarkJS Fingerprint</title>
-    <script src="/home/disu/Documents/Dev/rayyan-js/dist/index.umd.js"></script>
+    <title>RayyanJS </title>
+    <script src="/home/disu/Documents/Dev/rayyan-js/dist/core/index.umd.js"></script>
 </head>
 <body>
     <h1>Browser Fingerprint</h1>
-    <p>Your unique fingerprint:</p>
-    <pre id="fingerprint">Loading...</pre>
 
-    <h2>Fingerprint Data</h2>
+    <h2>Fingerprint Data & Hash</h2>
     <pre id="fingerprintData">Loading...</pre>
+
+    <h2>Tor Browser Details</h2>
+    <pre id="tor">Loading...</pre>
+
 
     <h2>Incognito Status</h2>
     <pre id="incognito">Loading...</pre>
 
     <script >
         document.addEventListener("DOMContentLoaded", async function () {
-            console.log(RayyanJS)
-            console.log(await RayyanJS.detectTorBrowser());
-            console.log(await RayyanJS.detectIncognito())
-            const fp = await RayyanJS?.getDeviceFingerprint()
-            // const fp = await getDeviceFingerprint();/
-            console.log({ fp });
+
+            function updateElement(id, content) {
+                document.getElementById(id).innerText = content;
+            }
+
+            const fpData = await RayyanJS?.getDeviceFingerprint();
+            updateElement("fingerprintData", JSON.stringify(fpData, null, 2));
+
+            const incognito = await RayyanJS?.detectIncognito();
+            updateElement("incognito",  JSON.stringify(incognito, null, 2));
+     
+            const tor = await RayyanJS?.detectTorBrowser();
+            updateElement("tor", JSON.stringify(tor, null, 2));
+            
         });
 
 
