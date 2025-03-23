@@ -992,9 +992,12 @@
         'screen.is_touchscreen',
         'screen.maxTouchPoints',
         'system.useragent',
-        'browser_.details.deviceMemory',
+        'system.browser.name',
+        'system.browser.version',
         'webgl'
     ]);
+
+
     const getWebGLInfo = () => {
         try {
             const canvas = document.createElement("canvas");
