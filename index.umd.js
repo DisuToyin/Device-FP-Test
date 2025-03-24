@@ -4,7 +4,533 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.RayyanJS = {}));
 })(this, (function (exports) { 'use strict';
 
-    function e(e,r,n,t){return new(n||(n=Promise))((function(o,a){function i(e){try{c(t.next(e));}catch(e){a(e);}}function u(e){try{c(t.throw(e));}catch(e){a(e);}}function c(e){var r;e.done?o(e.value):(r=e.value,r instanceof n?r:new n((function(e){e(r);}))).then(i,u);}c((t=t.apply(e,[])).next());}))}function r(e,r){var n,t,o,a,i={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return a={next:u(0),throw:u(1),return:u(2)},"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function u(u){return function(c){return function(u){if(n)throw new TypeError("Generator is already executing.");for(;a&&(a=0,u[0]&&(i=0)),i;)try{if(n=1,t&&(o=2&u[0]?t.return:u[0]?t.throw||((o=t.return)&&o.call(t),0):t.next)&&!(o=o.call(t,u[1])).done)return o;switch(t=0,o&&(u=[2&u[0],o.value]),u[0]){case 0:case 1:o=u;break;case 4:return i.label++,{value:u[1],done:!1};case 5:i.label++,t=u[1],u=[0];continue;case 7:u=i.ops.pop(),i.trys.pop();continue;default:if(!(o=i.trys,(o=o.length>0&&o[o.length-1])||6!==u[0]&&2!==u[0])){i=0;continue}if(3===u[0]&&(!o||u[1]>o[0]&&u[1]<o[3])){i.label=u[1];break}if(6===u[0]&&i.label<o[1]){i.label=o[1],o=u;break}if(o&&i.label<o[2]){i.label=o[2],i.ops.push(u);break}o[2]&&i.ops.pop(),i.trys.pop();continue}u=r.call(e,i);}catch(e){u=[6,e],t=0;}finally{n=o=0;}if(5&u[0])throw u[1];return {value:u[0]?u[1]:void 0,done:true}}([u,c])}}}"function"==typeof SuppressedError&&SuppressedError;var n={exclude:[]};function t(e,r){if(!["exclude","permissions_to_check","retries","timeout"].includes(e))throw new Error("Unknown option "+e);if(["exclude","permissions_to_check"].includes(e)&&(!Array.isArray(r)||!r.every((function(e){return "string"==typeof e}))))throw new Error("The value of the exclude and permissions_to_check must be an array of strings");if(["retries","timeout"].includes(e)&&"number"!=typeof r)throw new Error("The value of retries must be a number");n[e]=r;}var o={},a={timeout:"true"},i=function(e,r){"undefined"!=typeof window&&(o[e]=r);},u=function(){return Object.fromEntries(Object.entries(o).filter((function(e){var r,t=e[0];return !(null===(r=null==n?void 0:n.exclude)||void 0===r?void 0:r.includes(t))})).map((function(e){return [e[0],(0, e[1])()]})))},c=3432918353,s=461845907,l=3864292196,d=2246822507,f=3266489909;function h(e,r){return e<<r|e>>>32-r}function m(e,r){ void 0===r&&(r=0);for(var n=r,t=0,o=3&e.length,a=e.length-o,i=0;i<a;)t=255&e.charCodeAt(i)|(255&e.charCodeAt(++i))<<8|(255&e.charCodeAt(++i))<<16|(255&e.charCodeAt(++i))<<24,++i,t=h(t=Math.imul(t,c),15),n=h(n^=t=Math.imul(t,s),13),n=Math.imul(n,5)+l;switch(t=0,o){case 3:t^=(255&e.charCodeAt(i+2))<<16;case 2:t^=(255&e.charCodeAt(i+1))<<8;case 1:t^=255&e.charCodeAt(i),t=h(t=Math.imul(t,c),15),n^=t=Math.imul(t,s);}return ((n=function(e){return e^=e>>>16,e=Math.imul(e,d),e^=e>>>13,e=Math.imul(e,f),e^e>>>16}(n^=e.length))>>>0).toString(36)}function v(e,r){return new Promise((function(n){setTimeout((function(){return n(r)}),e);}))}function g(e,r,n){return Promise.all(e.map((function(e){return Promise.race([e,v(r,n)])})))}function w(){return e(this,void 0,void 0,(function(){var e,t,o,i,c;return r(this,(function(r){switch(r.label){case 0:return r.trys.push([0,2,,3]),e=u(),t=Object.keys(e),[4,g(Object.values(e),(null==n?void 0:n.timeout)||1e3,a)];case 1:return o=r.sent(),i=o.filter((function(e){return void 0!==e})),c={},i.forEach((function(e,r){c[t[r]]=e;})),[2,S(c,n.exclude||[])];case 2:throw r.sent();case 3:return [2]}}))}))}function S(e,r){var n={},t=function(t){if(e.hasOwnProperty(t)){var o=e[t];if("object"!=typeof o||Array.isArray(o))r.includes(t)||(n[t]=o);else {var a=S(o,r.map((function(e){return e.startsWith(t+".")?e.slice(t.length+1):e})));Object.keys(a).length>0&&(n[t]=a);}}};for(var o in e)t(o);return n}function E(e){for(var r=0,n=0;n<e.length;++n)r+=Math.abs(e[n]);return r}function P(e,r,n){for(var t=[],o=0;o<e[0].data.length;o++){for(var a=[],i=0;i<e.length;i++)a.push(e[i].data[o]);t.push(M(a));}var u=new Uint8ClampedArray(t);return new ImageData(u,r,n)}function M(e){if(0===e.length)return 0;for(var r={},n=0,t=e;n<t.length;n++){r[a=t[n]]=(r[a]||0)+1;}var o=e[0];for(var a in r)r[a]>r[o]&&(o=parseInt(a,10));return o}function A(){if("undefined"==typeof navigator)return {name:"unknown",version:"unknown"};for(var e=navigator.userAgent,r={Edg:"Edge",OPR:"Opera"},n=0,t=[/(?<name>Edge|Edg)\/(?<version>\d+(?:\.\d+)?)/,/(?<name>(?:Chrome|Chromium|OPR|Opera|Vivaldi|Brave))\/(?<version>\d+(?:\.\d+)?)/,/(?<name>(?:Firefox|Waterfox|Iceweasel|IceCat))\/(?<version>\d+(?:\.\d+)?)/,/(?<name>Safari)\/(?<version>\d+(?:\.\d+)?)/,/(?<name>MSIE|Trident|IEMobile).+?(?<version>\d+(?:\.\d+)?)/,/(?<name>[A-Za-z]+)\/(?<version>\d+(?:\.\d+)?)/,/(?<name>SamsungBrowser)\/(?<version>\d+(?:\.\d+)?)/];n<t.length;n++){var o=t[n],a=e.match(o);if(a&&a.groups)return {name:r[a.groups.name]||a.groups.name,version:a.groups.version}}return {name:"unknown",version:"unknown"}}i("audio",(function(){return e(this,void 0,void 0,(function(){return r(this,(function(e){return [2,new Promise((function(e,r){try{var n=new(window.OfflineAudioContext||window.webkitOfflineAudioContext)(1,5e3,44100),t=n.createBufferSource(),o=n.createOscillator();o.frequency.value=1e3;var a,i=n.createDynamicsCompressor();i.threshold.value=-50,i.knee.value=40,i.ratio.value=12,i.attack.value=0,i.release.value=.2,o.connect(i),i.connect(n.destination),o.start(),n.oncomplete=function(r){a=r.renderedBuffer.getChannelData(0),e({sampleHash:E(a),oscillator:o.type,maxChannels:n.destination.maxChannelCount,channelCountMode:t.channelCountMode});},n.startRendering();}catch(e){console.error("Error creating audio fingerprint:",e),r(e);}}))]}))}))}));var C$1="SamsungBrowser"!==A().name?1:3,x=280,k=20;"Firefox"!=A().name&&i("canvas",(function(){return document.createElement("canvas").getContext("2d"),new Promise((function(e){var r=Array.from({length:C$1},(function(){return function(){var e=document.createElement("canvas"),r=e.getContext("2d");if(!r)return new ImageData(1,1);e.width=x,e.height=k;var n=r.createLinearGradient(0,0,e.width,e.height);n.addColorStop(0,"red"),n.addColorStop(1/6,"orange"),n.addColorStop(2/6,"yellow"),n.addColorStop(.5,"green"),n.addColorStop(4/6,"blue"),n.addColorStop(5/6,"indigo"),n.addColorStop(1,"violet"),r.fillStyle=n,r.fillRect(0,0,e.width,e.height);var t="Random Text WMwmil10Oo";r.font="23.123px Arial",r.fillStyle="black",r.fillText(t,-5,15),r.fillStyle="rgba(0, 0, 255, 0.5)",r.fillText(t,-3.3,17.7),r.beginPath(),r.moveTo(0,0),r.lineTo(2*e.width/7,e.height),r.strokeStyle="white",r.lineWidth=2,r.stroke();var o=r.getImageData(0,0,e.width,e.height);return o}()}));e({commonImageDataHash:m(P(r,x,k).data.toString()).toString()});}))}));var T,R=["Arial","Arial Black","Arial Narrow","Arial Rounded MT","Arimo","Archivo","Barlow","Bebas Neue","Bitter","Bookman","Calibri","Cabin","Candara","Century","Century Gothic","Comic Sans MS","Constantia","Courier","Courier New","Crimson Text","DM Mono","DM Sans","DM Serif Display","DM Serif Text","Dosis","Droid Sans","Exo","Fira Code","Fira Sans","Franklin Gothic Medium","Garamond","Geneva","Georgia","Gill Sans","Helvetica","Impact","Inconsolata","Indie Flower","Inter","Josefin Sans","Karla","Lato","Lexend","Lucida Bright","Lucida Console","Lucida Sans Unicode","Manrope","Merriweather","Merriweather Sans","Montserrat","Myriad","Noto Sans","Nunito","Nunito Sans","Open Sans","Optima","Orbitron","Oswald","Pacifico","Palatino","Perpetua","PT Sans","PT Serif","Poppins","Prompt","Public Sans","Quicksand","Rajdhani","Recursive","Roboto","Roboto Condensed","Rockwell","Rubik","Segoe Print","Segoe Script","Segoe UI","Sora","Source Sans Pro","Space Mono","Tahoma","Taviraj","Times","Times New Roman","Titillium Web","Trebuchet MS","Ubuntu","Varela Round","Verdana","Work Sans"],I=["monospace","sans-serif","serif"];function O(e,r){if(!e)throw new Error("Canvas context not supported");return e.font,e.font="72px ".concat(r),e.measureText("WwMmLli0Oo").width}function _(){var e,r=document.createElement("canvas"),n=null!==(e=r.getContext("webgl"))&&void 0!==e?e:r.getContext("experimental-webgl");if(n&&"getParameter"in n){var t=n.getExtension("WEBGL_debug_renderer_info");return {vendor:(n.getParameter(n.VENDOR)||"").toString(),vendorUnmasked:t?(n.getParameter(t.UNMASKED_VENDOR_WEBGL)||"").toString():"",renderer:(n.getParameter(n.RENDERER)||"").toString(),rendererUnmasked:t?(n.getParameter(t.UNMASKED_RENDERER_WEBGL)||"").toString():"",version:(n.getParameter(n.VERSION)||"").toString(),shadingLanguageVersion:(n.getParameter(n.SHADING_LANGUAGE_VERSION)||"").toString()}}return "undefined"}function D(){var e=new Float32Array(1),r=new Uint8Array(e.buffer);return e[0]=1/0,e[0]=e[0]-e[0],r[3]}function B(e,r){var n={};return r.forEach((function(r){var t=function(e){if(0===e.length)return null;var r={};e.forEach((function(e){var n=String(e);r[n]=(r[n]||0)+1;}));var n=e[0],t=1;return Object.keys(r).forEach((function(e){r[e]>t&&(n=e,t=r[e]);})),n}(e.map((function(e){return r in e?e[r]:void 0})).filter((function(e){return void 0!==e})));t&&(n[r]=t);})),n}function L(){var e=[],r={"prefers-contrast":["high","more","low","less","forced","no-preference"],"any-hover":["hover","none"],"any-pointer":["none","coarse","fine"],pointer:["none","coarse","fine"],hover:["hover","none"],update:["fast","slow"],"inverted-colors":["inverted","none"],"prefers-reduced-motion":["reduce","no-preference"],"prefers-reduced-transparency":["reduce","no-preference"],scripting:["none","initial-only","enabled"],"forced-colors":["active","none"]};return Object.keys(r).forEach((function(n){r[n].forEach((function(r){matchMedia("(".concat(n,": ").concat(r,")")).matches&&e.push("".concat(n,": ").concat(r));}));})),e}function F(){if("https:"===window.location.protocol&&"function"==typeof window.ApplePaySession)try{for(var e=window.ApplePaySession.supportsVersion,r=15;r>0;r--)if(e(r))return r}catch(e){return 0}return 0}"Firefox"!=A().name&&i("fonts",(function(){var n=this;return new Promise((function(t,o){try{!function(n){var t;e(this,void 0,void 0,(function(){var e,o,a;return r(this,(function(r){switch(r.label){case 0:return document.body?[3,2]:[4,(i=50,new Promise((function(e){return setTimeout(e,i,u)})))];case 1:return r.sent(),[3,0];case 2:if((e=document.createElement("iframe")).setAttribute("frameBorder","0"),(o=e.style).setProperty("position","fixed"),o.setProperty("display","block","important"),o.setProperty("visibility","visible"),o.setProperty("border","0"),o.setProperty("opacity","0"),e.src="about:blank",document.body.appendChild(e),!(a=e.contentDocument||(null===(t=e.contentWindow)||void 0===t?void 0:t.document)))throw new Error("Iframe document is not accessible");return n({iframe:a}),setTimeout((function(){document.body.removeChild(e);}),0),[2]}var i,u;}))}));}((function(o){var a=o.iframe;return e(n,void 0,void 0,(function(){var e,n,o,i;return r(this,(function(r){return "Hello, world!",e=a.createElement("canvas"),n=e.getContext("2d"),o=I.map((function(e){return O(n,e)})),i={},R.forEach((function(e){var r=O(n,e);o.includes(r)||(i[e]=r);})),t(i),[2]}))}))}));}catch(e){o({error:"unsupported"});}}))})),i("hardware",(function(){return new Promise((function(e,r){var n=void 0!==navigator.deviceMemory?navigator.deviceMemory:0,t=window.performance&&window.performance.memory?window.performance.memory:0;e({videocard:_(),architecture:D(),deviceMemory:n.toString()||"undefined",jsHeapSizeLimit:t.jsHeapSizeLimit||0});}))})),i("locales",(function(){return new Promise((function(e){e({languages:navigator.language,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone});}))})),i("permissions",(function(){return e(this,void 0,void 0,(function(){var t;return r(this,(function(o){return T=(null==n?void 0:n.permissions_to_check)||["accelerometer","accessibility","accessibility-events","ambient-light-sensor","background-fetch","background-sync","bluetooth","camera","clipboard-read","clipboard-write","device-info","display-capture","gyroscope","geolocation","local-fonts","magnetometer","microphone","midi","nfc","notifications","payment-handler","persistent-storage","push","speaker","storage-access","top-level-storage-access","window-management","query"],t=Array.from({length:(null==n?void 0:n.retries)||3},(function(){return function(){return e(this,void 0,void 0,(function(){var e,n,t,o,a;return r(this,(function(r){switch(r.label){case 0:e={},n=0,t=T,r.label=1;case 1:if(!(n<t.length))return [3,6];o=t[n],r.label=2;case 2:return r.trys.push([2,4,,5]),[4,navigator.permissions.query({name:o})];case 3:return a=r.sent(),e[o]=a.state.toString(),[3,5];case 4:return r.sent(),[3,5];case 5:return n++,[3,1];case 6:return [2,e]}}))}))}()})),[2,Promise.all(t).then((function(e){return B(e,T)}))]}))}))})),i("plugins",(function(){var e=[];if(navigator.plugins)for(var r=0;r<navigator.plugins.length;r++){var n=navigator.plugins[r];e.push([n.name,n.filename,n.description].join("|"));}return new Promise((function(r){r({plugins:e});}))})),i("screen",(function(){return new Promise((function(e){e({is_touchscreen:navigator.maxTouchPoints>0,maxTouchPoints:navigator.maxTouchPoints,colorDepth:screen.colorDepth,mediaMatches:L()});}))})),i("system",(function(){return new Promise((function(e){var r=A();e({platform:window.navigator.platform,cookieEnabled:window.navigator.cookieEnabled,productSub:navigator.productSub,product:navigator.product,useragent:navigator.userAgent,browser:{name:r.name,version:r.version},applePayVersion:F()});}))}));var N,U="SamsungBrowser"!==A().name?1:3,G=null;"undefined"!=typeof document&&((N=document.createElement("canvas")).width=200,N.height=100,G=N.getContext("webgl")),i("webgl",(function(){return e(this,void 0,void 0,(function(){var e;return r(this,(function(r){try{if(!G)throw new Error("WebGL not supported");return e=Array.from({length:U},(function(){return function(){try{if(!G)throw new Error("WebGL not supported");var e="\n          attribute vec2 position;\n          void main() {\n              gl_Position = vec4(position, 0.0, 1.0);\n          }\n      ",r="\n          precision mediump float;\n          void main() {\n              gl_FragColor = vec4(0.812, 0.195, 0.553, 0.921); // Set line color\n          }\n      ",n=G.createShader(G.VERTEX_SHADER),t=G.createShader(G.FRAGMENT_SHADER);if(!n||!t)throw new Error("Failed to create shaders");if(G.shaderSource(n,e),G.shaderSource(t,r),G.compileShader(n),!G.getShaderParameter(n,G.COMPILE_STATUS))throw new Error("Vertex shader compilation failed: "+G.getShaderInfoLog(n));if(G.compileShader(t),!G.getShaderParameter(t,G.COMPILE_STATUS))throw new Error("Fragment shader compilation failed: "+G.getShaderInfoLog(t));var o=G.createProgram();if(!o)throw new Error("Failed to create shader program");if(G.attachShader(o,n),G.attachShader(o,t),G.linkProgram(o),!G.getProgramParameter(o,G.LINK_STATUS))throw new Error("Shader program linking failed: "+G.getProgramInfoLog(o));G.useProgram(o);for(var a=137,i=new Float32Array(4*a),u=2*Math.PI/a,c=0;c<a;c++){var s=c*u;i[4*c]=0,i[4*c+1]=0,i[4*c+2]=Math.cos(s)*(N.width/2),i[4*c+3]=Math.sin(s)*(N.height/2);}var l=G.createBuffer();G.bindBuffer(G.ARRAY_BUFFER,l),G.bufferData(G.ARRAY_BUFFER,i,G.STATIC_DRAW);var d=G.getAttribLocation(o,"position");G.enableVertexAttribArray(d),G.vertexAttribPointer(d,2,G.FLOAT,!1,0,0),G.viewport(0,0,N.width,N.height),G.clearColor(0,0,0,1),G.clear(G.COLOR_BUFFER_BIT),G.drawArrays(G.LINES,0,2*a);var f=new Uint8ClampedArray(N.width*N.height*4);return G.readPixels(0,0,N.width,N.height,G.RGBA,G.UNSIGNED_BYTE,f),new ImageData(f,N.width,N.height)}catch(e){return new ImageData(1,1)}finally{G&&(G.bindBuffer(G.ARRAY_BUFFER,null),G.useProgram(null),G.viewport(0,0,G.drawingBufferWidth,G.drawingBufferHeight),G.clearColor(0,0,0,0));}}()})),[2,{commonImageHash:m(P(e,N.width,N.height).data.toString()).toString()}]}catch(e){return [2,{webgl:"unsupported"}]}return [2]}))}))}));var j=function(e,r,n,t){for(var o=(n-r)/t,a=0,i=0;i<t;i++){a+=e(r+(i+.5)*o);}return a*o};i("math",(function(){return e(void 0,void 0,void 0,(function(){return r(this,(function(e){return [2,{acos:Math.acos(.5),asin:j(Math.asin,-1,1,97),atan:j(Math.atan,-1,1,97),cos:j(Math.cos,0,Math.PI,97),cosh:Math.cosh(9/7),e:Math.E,largeCos:Math.cos(1e20),largeSin:Math.sin(1e20),largeTan:Math.tan(1e20),log:Math.log(1e3),pi:Math.PI,sin:j(Math.sin,-Math.PI,Math.PI,97),sinh:j(Math.sinh,-9/7,7/9,97),sqrt:Math.sqrt(2),tan:j(Math.tan,0,2*Math.PI,97),tanh:j(Math.tanh,-9/7,7/9,97)}]}))}))}));
+    let options = {
+        exclude: [],
+        include: [],
+        logging: true,
+    };
+
+    // components include a dictionary of name: function.
+    const components = {};
+    /**
+     * includeComponent is the function each component function needs to call in order for the component to be included
+     * in the fingerprint.
+     * @param {string} name - the name identifier of the component
+     * @param {componentFunctionInterface} creationFunction - the function that implements the component
+     * @returns
+     */
+    const includeComponent = (name, creationFunction) => {
+        if (typeof window !== 'undefined')
+            components[name] = creationFunction;
+    };
+    /**
+     * The function turns the map of component functions to a map of Promises when called
+     * @returns {[name: string]: <Promise>componentInterface}
+     */
+    const getComponentPromises = () => {
+        return Object.fromEntries(Object.entries(components)
+            .filter(([key]) => {
+            var _a;
+            return !((_a = options === null || options === void 0 ? void 0 : options.exclude) === null || _a === void 0 ? void 0 : _a.includes(key));
+        })
+            .filter(([key]) => {
+            var _a, _b, _c, _d;
+            return ((_a = options === null || options === void 0 ? void 0 : options.include) === null || _a === void 0 ? void 0 : _a.some(e => e.includes('.')))
+                ? (_b = options === null || options === void 0 ? void 0 : options.include) === null || _b === void 0 ? void 0 : _b.some(e => e.startsWith(key))
+                : ((_c = options === null || options === void 0 ? void 0 : options.include) === null || _c === void 0 ? void 0 : _c.length) === 0 || ((_d = options === null || options === void 0 ? void 0 : options.include) === null || _d === void 0 ? void 0 : _d.includes(key));
+        })
+            .map(([key, value]) => [key, value()]));
+    };
+    const timeoutInstance = {
+        'timeout': "true"
+    };
+
+    /**
+     * This code is taken from https://github.com/LinusU/murmur-128/blob/master/index.js
+     * But instead of dependencies to encode-utf8 and fmix, I've implemented them here.
+     */
+    function encodeUtf8(text) {
+        const encoder = new TextEncoder();
+        return encoder.encode(text).buffer;
+    }
+    function fmix(input) {
+        input ^= (input >>> 16);
+        input = Math.imul(input, 0x85ebca6b);
+        input ^= (input >>> 13);
+        input = Math.imul(input, 0xc2b2ae35);
+        input ^= (input >>> 16);
+        return (input >>> 0);
+    }
+    const C = new Uint32Array([
+        0x239b961b,
+        0xab0e9789,
+        0x38b34ae5,
+        0xa1e38b93
+    ]);
+    function rotl(m, n) {
+        return (m << n) | (m >>> (32 - n));
+    }
+    function body(key, hash) {
+        const blocks = (key.byteLength / 16) | 0;
+        const view32 = new Uint32Array(key, 0, blocks * 4);
+        for (let i = 0; i < blocks; i++) {
+            const k = view32.subarray(i * 4, (i + 1) * 4);
+            k[0] = Math.imul(k[0], C[0]);
+            k[0] = rotl(k[0], 15);
+            k[0] = Math.imul(k[0], C[1]);
+            hash[0] = (hash[0] ^ k[0]);
+            hash[0] = rotl(hash[0], 19);
+            hash[0] = (hash[0] + hash[1]);
+            hash[0] = Math.imul(hash[0], 5) + 0x561ccd1b;
+            k[1] = Math.imul(k[1], C[1]);
+            k[1] = rotl(k[1], 16);
+            k[1] = Math.imul(k[1], C[2]);
+            hash[1] = (hash[1] ^ k[1]);
+            hash[1] = rotl(hash[1], 17);
+            hash[1] = (hash[1] + hash[2]);
+            hash[1] = Math.imul(hash[1], 5) + 0x0bcaa747;
+            k[2] = Math.imul(k[2], C[2]);
+            k[2] = rotl(k[2], 17);
+            k[2] = Math.imul(k[2], C[3]);
+            hash[2] = (hash[2] ^ k[2]);
+            hash[2] = rotl(hash[2], 15);
+            hash[2] = (hash[2] + hash[3]);
+            hash[2] = Math.imul(hash[2], 5) + 0x96cd1c35;
+            k[3] = Math.imul(k[3], C[3]);
+            k[3] = rotl(k[3], 18);
+            k[3] = Math.imul(k[3], C[0]);
+            hash[3] = (hash[3] ^ k[3]);
+            hash[3] = rotl(hash[3], 13);
+            hash[3] = (hash[3] + hash[0]);
+            hash[3] = Math.imul(hash[3], 5) + 0x32ac3b17;
+        }
+    }
+    function tail(key, hash) {
+        const blocks = (key.byteLength / 16) | 0;
+        const reminder = (key.byteLength % 16);
+        const k = new Uint32Array(4);
+        const tail = new Uint8Array(key, blocks * 16, reminder);
+        switch (reminder) {
+            case 15:
+                k[3] = (k[3] ^ (tail[14] << 16));
+                break; // fallthrough
+            case 14:
+                k[3] = (k[3] ^ (tail[13] << 8));
+                break; // fallthrough
+            case 13:
+                k[3] = (k[3] ^ (tail[12] << 0));
+                k[3] = Math.imul(k[3], C[3]);
+                k[3] = rotl(k[3], 18);
+                k[3] = Math.imul(k[3], C[0]);
+                hash[3] = (hash[3] ^ k[3]);
+                break;
+            // fallthrough
+            case 12:
+                k[2] = (k[2] ^ (tail[11] << 24));
+                break; // fallthrough
+            case 11:
+                k[2] = (k[2] ^ (tail[10] << 16));
+                break; // fallthrough
+            case 10:
+                k[2] = (k[2] ^ (tail[9] << 8));
+                break; // fallthrough
+            case 9:
+                k[2] = (k[2] ^ (tail[8] << 0));
+                k[2] = Math.imul(k[2], C[2]);
+                k[2] = rotl(k[2], 17);
+                k[2] = Math.imul(k[2], C[3]);
+                hash[2] = (hash[2] ^ k[2]);
+                break;
+            // fallthrough
+            case 8:
+                k[1] = (k[1] ^ (tail[7] << 24));
+                break; // fallthrough
+            case 7:
+                k[1] = (k[1] ^ (tail[6] << 16));
+                break; // fallthrough
+            case 6:
+                k[1] = (k[1] ^ (tail[5] << 8));
+                break; // fallthrough
+            case 5:
+                k[1] = (k[1] ^ (tail[4] << 0));
+                k[1] = Math.imul(k[1], C[1]);
+                k[1] = rotl(k[1], 16);
+                k[1] = Math.imul(k[1], C[2]);
+                hash[1] = (hash[1] ^ k[1]);
+                break;
+            // fallthrough
+            case 4:
+                k[0] = (k[0] ^ (tail[3] << 24));
+                break; // fallthrough
+            case 3:
+                k[0] = (k[0] ^ (tail[2] << 16));
+                break; // fallthrough
+            case 2:
+                k[0] = (k[0] ^ (tail[1] << 8));
+                break; // fallthrough
+            case 1:
+                k[0] = (k[0] ^ (tail[0] << 0));
+                k[0] = Math.imul(k[0], C[0]);
+                k[0] = rotl(k[0], 15);
+                k[0] = Math.imul(k[0], C[1]);
+                hash[0] = (hash[0] ^ k[0]);
+                break;
+        }
+    }
+    function finalize(key, hash) {
+        hash[0] = (hash[0] ^ key.byteLength);
+        hash[1] = (hash[1] ^ key.byteLength);
+        hash[2] = (hash[2] ^ key.byteLength);
+        hash[3] = (hash[3] ^ key.byteLength);
+        hash[0] = (hash[0] + hash[1]) | 0;
+        hash[0] = (hash[0] + hash[2]) | 0;
+        hash[0] = (hash[0] + hash[3]) | 0;
+        hash[1] = (hash[1] + hash[0]) | 0;
+        hash[2] = (hash[2] + hash[0]) | 0;
+        hash[3] = (hash[3] + hash[0]) | 0;
+        hash[0] = fmix(hash[0]);
+        hash[1] = fmix(hash[1]);
+        hash[2] = fmix(hash[2]);
+        hash[3] = fmix(hash[3]);
+        hash[0] = (hash[0] + hash[1]) | 0;
+        hash[0] = (hash[0] + hash[2]) | 0;
+        hash[0] = (hash[0] + hash[3]) | 0;
+        hash[1] = (hash[1] + hash[0]) | 0;
+        hash[2] = (hash[2] + hash[0]) | 0;
+        hash[3] = (hash[3] + hash[0]) | 0;
+    }
+    function hash(key, seed = 0) {
+        seed = (seed ? (seed | 0) : 0);
+        if (typeof key === 'string') {
+            key = encodeUtf8(key);
+        }
+        if (!(key instanceof ArrayBuffer)) {
+            throw new TypeError('Expected key to be ArrayBuffer or string');
+        }
+        const hash = new Uint32Array([seed, seed, seed, seed]);
+        body(key, hash);
+        tail(key, hash);
+        finalize(key, hash);
+        const byteArray = new Uint8Array(hash.buffer);
+        return Array.from(byteArray).map(byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    function delay(t, val) {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(val), t);
+        });
+    }
+    function raceAll(promises, timeoutTime, timeoutVal) {
+        return Promise.all(promises.map((p) => {
+            return Promise.race([p, delay(timeoutTime, timeoutVal)]);
+        }));
+    }
+
+    async function getFingerprintData() {
+        try {
+            const promiseMap = getComponentPromises();
+            const keys = Object.keys(promiseMap);
+            const promises = Object.values(promiseMap);
+            const resolvedValues = await raceAll(promises, (options === null || options === void 0 ? void 0 : options.timeout) || 1000, timeoutInstance);
+            const validValues = resolvedValues.filter((value) => value !== undefined);
+            const resolvedComponents = {};
+            validValues.forEach((value, index) => {
+                resolvedComponents[keys[index]] = value;
+            });
+            return filterFingerprintData(resolvedComponents, options.exclude || [], options.include || [], "");
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    /**
+     * This function filters the fingerprint data based on the exclude and include list
+     * @param {componentInterface} obj - components objects from main componentInterface
+     * @param {string[]} excludeList - elements to exclude from components objects (e.g : 'canvas', 'system.browser')
+     * @param {string[]} includeList - elements to only include from components objects (e.g : 'canvas', 'system.browser')
+     * @param {string} path - auto-increment path iterating on key objects from components objects
+     * @returns {componentInterface} result - returns the final object before hashing in order to get fingerprint
+     */
+    function filterFingerprintData(obj, excludeList, includeList, path = "") {
+        const result = {};
+        for (const [key, value] of Object.entries(obj)) {
+            const currentPath = path + key + ".";
+            if (typeof value === "object" && !Array.isArray(value)) {
+                const filtered = filterFingerprintData(value, excludeList, includeList, currentPath);
+                if (Object.keys(filtered).length > 0) {
+                    result[key] = filtered;
+                }
+            }
+            else {
+                const isExcluded = excludeList.some(exclusion => currentPath.startsWith(exclusion));
+                const isIncluded = includeList.some(inclusion => currentPath.startsWith(inclusion));
+                if (!isExcluded || isIncluded) {
+                    result[key] = value;
+                }
+            }
+        }
+        return result;
+    }
+    async function getFingerprint() {
+        try {
+            const fingerprintData = await getFingerprintData();
+            const thisHash = hash(JSON.stringify(fingerprintData));
+            return { hash: thisHash.toString(), data: fingerprintData };
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+
+    async function detectTorBrowser() {
+        const totalChecks = 7;
+        let score = 0;
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz === "Atlantic/Reykjavik")
+            score++;
+        const webGLInfo = getWebGLInfo();
+        if (["Mozilla", "unknown"].includes(webGLInfo.vendor))
+            score++;
+        if (!window.RTCPeerConnection)
+            score++;
+        if (!navigator.deviceMemory)
+            score++;
+        if (navigator.hardwareConcurrency === 2)
+            score++;
+        if (!navigator.credentials)
+            score++;
+        if (!navigator.geolocation)
+            score++;
+        return {
+            isTor: score >= 6,
+            isTorAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
+            details: {
+                timezoneMatch: tz === "Atlantic/Reykjavik",
+                webGLVendor: webGLInfo.vendor,
+                webRTCDisabled: !window.RTCPeerConnection,
+            },
+        };
+    }
+    const getWebGLInfo = () => {
+        try {
+            const canvas = document.createElement("canvas");
+            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            if (!gl)
+                return { vendor: "unsupported", renderer: "unsupported" };
+            const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+            return debugInfo
+                ? {
+                    vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
+                    renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
+                }
+                : { vendor: "unknown", renderer: "unknown" };
+        }
+        catch (_a) {
+            return { vendor: "error", renderer: "error" };
+        }
+    };
+
+    async function detectIncognito() {
+        return new Promise(function (resolve, reject) {
+            let browserName = 'Unknown';
+            function __callback(isPrivate) {
+                resolve({
+                    isPrivate: isPrivate,
+                    browserName: browserName
+                });
+            }
+            function identifyChromium() {
+                const ua = navigator.userAgent;
+                if (ua.match(/Chrome/)) {
+                    if (navigator.brave !== undefined) {
+                        return 'Brave';
+                    }
+                    else if (ua.match(/Edg/)) {
+                        return 'Edge';
+                    }
+                    else if (ua.match(/OPR/)) {
+                        return 'Opera';
+                    }
+                    return 'Chrome';
+                }
+                else {
+                    return 'Chromium';
+                }
+            }
+            function assertEvalToString(value) {
+                return value === eval.toString().length;
+            }
+            function feid() {
+                let toFixedEngineID = 0;
+                let neg = parseInt("-1");
+                try {
+                    neg.toFixed(neg);
+                }
+                catch (e) {
+                    toFixedEngineID = e.message.length;
+                }
+                return toFixedEngineID;
+            }
+            function isSafari() {
+                return feid() === 44;
+            }
+            function isChrome() {
+                return feid() === 51;
+            }
+            function isFirefox() {
+                return feid() === 25;
+            }
+            function isMSIE() {
+                return (navigator.msSaveBlob !== undefined && assertEvalToString(39));
+            }
+            /**
+             * Safari (Safari for iOS & macOS)
+             **/
+            function newSafariTest() {
+                const tmp_name = String(Math.random());
+                try {
+                    const db = window.indexedDB.open(tmp_name, 1);
+                    db.onupgradeneeded = function (i) {
+                        var _a;
+                        const res = i.target.result;
+                        try {
+                            res.createObjectStore('test', {
+                                autoIncrement: true
+                            }).put(new Blob());
+                            __callback(false);
+                        }
+                        catch (e) {
+                            let message = e;
+                            if (e instanceof Error) {
+                                message = (_a = e.message) !== null && _a !== void 0 ? _a : e;
+                            }
+                            if (typeof message !== 'string') {
+                                __callback(false);
+                                return;
+                            }
+                            const matchesExpectedError = message.includes('BlobURLs are not yet supported');
+                            __callback(matchesExpectedError);
+                            return;
+                        }
+                        finally {
+                            res.close();
+                            window.indexedDB.deleteDatabase(tmp_name);
+                        }
+                    };
+                }
+                catch (e) {
+                    __callback(false);
+                }
+            }
+            function oldSafariTest() {
+                const openDB = window.openDatabase;
+                const storage = window.localStorage;
+                try {
+                    openDB(null, null, null, null);
+                }
+                catch (e) {
+                    __callback(true);
+                    return;
+                }
+                try {
+                    storage.setItem('test', '1');
+                    storage.removeItem('test');
+                }
+                catch (e) {
+                    __callback(true);
+                    return;
+                }
+                __callback(false);
+            }
+            function safariPrivateTest() {
+                if (navigator.maxTouchPoints !== undefined) {
+                    newSafariTest();
+                }
+                else {
+                    oldSafariTest();
+                }
+            }
+            /**
+             * Chrome
+             **/
+            function getQuotaLimit() {
+                const w = window;
+                if (w.performance !== undefined &&
+                    w.performance.memory !== undefined &&
+                    w.performance.memory.jsHeapSizeLimit !== undefined) {
+                    return performance.memory.jsHeapSizeLimit;
+                }
+                return 1073741824;
+            }
+            // >= 76
+            function storageQuotaChromePrivateTest() {
+                navigator.webkitTemporaryStorage.queryUsageAndQuota(function (_, quota) {
+                    const quotaInMib = Math.round(quota / (1024 * 1024));
+                    const quotaLimitInMib = Math.round(getQuotaLimit() / (1024 * 1024)) * 2;
+                    __callback(quotaInMib < quotaLimitInMib);
+                }, function (e) {
+                    reject(new Error('detectIncognito somehow failed to query storage quota: ' +
+                        e.message));
+                });
+            }
+            // 50 to 75
+            function oldChromePrivateTest() {
+                const fs = window.webkitRequestFileSystem;
+                const success = function () {
+                    __callback(false);
+                };
+                const error = function () {
+                    __callback(true);
+                };
+                fs(0, 1, success, error);
+            }
+            function chromePrivateTest() {
+                if (self.Promise !== undefined && self.Promise.allSettled !== undefined) {
+                    storageQuotaChromePrivateTest();
+                }
+                else {
+                    oldChromePrivateTest();
+                }
+            }
+            /**
+             * Firefox
+             **/
+            function firefoxPrivateTest() {
+                __callback(navigator.serviceWorker === undefined);
+            }
+            /**
+             * MSIE
+             **/
+            function msiePrivateTest() {
+                __callback(window.indexedDB === undefined);
+            }
+            function main() {
+                if (isSafari()) {
+                    browserName = 'Safari';
+                    safariPrivateTest();
+                }
+                else if (isChrome()) {
+                    browserName = identifyChromium();
+                    chromePrivateTest();
+                }
+                else if (isFirefox()) {
+                    browserName = 'Firefox';
+                    firefoxPrivateTest();
+                }
+                else if (isMSIE()) {
+                    browserName = 'Internet Explorer';
+                    msiePrivateTest();
+                }
+                else {
+                    reject(new Error('detectIncognito cannot determine the browser'));
+                }
+            }
+            main();
+        });
+    }
+    if (typeof window !== 'undefined') {
+        window.detectIncognito = detectIncognito;
+    }
 
     /******************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -983,315 +1509,10 @@
         });
     }
 
-    t('exclude', [
-        'audio.sampleHash',
-        'canvas',
-        'hardware.deviceMemory',
-        'plugins',
-        'screen.mediaMatches',
-        'screen.is_touchscreen',
-        'screen.maxTouchPoints',
-        'system.useragent',
-        'system.browser.name',
-        'system.browser.version',
-        'webgl'
-    ]);
-
-
-    const getWebGLInfo = () => {
-        try {
-            const canvas = document.createElement("canvas");
-            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-            if (!gl)
-                return { vendor: "unsupported", renderer: "unsupported" };
-            const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-            return debugInfo
-                ? {
-                    vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
-                    renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
-                }
-                : { vendor: "unknown", renderer: "unknown" };
-        }
-        catch (_a) {
-            return { vendor: "error", renderer: "error" };
-        }
-    };
-    async function detectTorBrowser() {
-        const totalChecks = 7;
-        let score = 0;
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (tz === "Atlantic/Reykjavik")
-            score++;
-        const webGLInfo = getWebGLInfo();
-        if (["Mozilla", "unknown"].includes(webGLInfo.vendor))
-            score++;
-        if (!window.RTCPeerConnection)
-            score++;
-        if (!navigator.deviceMemory)
-            score++;
-        if (navigator.hardwareConcurrency === 2)
-            score++;
-        if (!navigator.credentials)
-            score++;
-        if (!navigator.geolocation)
-            score++;
-        return {
-            isTor: score >= 6,
-            isTorAccuracyScore: `${((score / totalChecks) * 100).toFixed(2)}%`,
-            details: {
-                timezoneMatch: tz === "Atlantic/Reykjavik",
-                webGLVendor: webGLInfo.vendor,
-                webRTCDisabled: !window.RTCPeerConnection,
-            },
-        };
-    }
-    async function getDeviceFingerprint() {
-        try {
-            const fingerprintData = await w();
-            const thisHash = hash(JSON.stringify(fingerprintData));
-            if (Math.random() < 0.001 && options.logging)
-                logFingerprintData(thisHash, fingerprintData);
-            return { hash: thisHash.toString(), data: fingerprintData };
-            // if (includeData) {
-            // } else {
-            //     console.log(thisHash.toString())
-            //     return thisHash.toString()
-            // }
-        }
-        catch (error) {
-            throw error;
-        }
-    }
-    function getVersion() {
-        return "X";
-    }
-    async function logFingerprintData(thisHash, fingerprintData) {
-        const url = 'https://logging.thumbmarkjs.com/v1/log';
-        const payload = {
-            thumbmark: thisHash,
-            components: fingerprintData,
-            version: getVersion()
-        };
-        if (!sessionStorage.getItem("_tmjs_l")) {
-            sessionStorage.setItem("_tmjs_l", "1");
-            try {
-                await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-            }
-            catch (_a) { } // do nothing
-        }
-    }
-    async function detectIncognito() {
-        return new Promise(function (resolve, reject) {
-            let browserName = 'Unknown';
-            function __callback(isPrivate) {
-                resolve({
-                    isPrivate: isPrivate,
-                    browserName: browserName
-                });
-            }
-            function identifyChromium() {
-                const ua = navigator.userAgent;
-                if (ua.match(/Chrome/)) {
-                    if (navigator.brave !== undefined) {
-                        return 'Brave';
-                    }
-                    else if (ua.match(/Edg/)) {
-                        return 'Edge';
-                    }
-                    else if (ua.match(/OPR/)) {
-                        return 'Opera';
-                    }
-                    return 'Chrome';
-                }
-                else {
-                    return 'Chromium';
-                }
-            }
-            function assertEvalToString(value) {
-                return value === eval.toString().length;
-            }
-            function feid() {
-                let toFixedEngineID = 0;
-                let neg = parseInt("-1");
-                try {
-                    neg.toFixed(neg);
-                }
-                catch (e) {
-                    toFixedEngineID = e.message.length;
-                }
-                return toFixedEngineID;
-            }
-            function isSafari() {
-                return feid() === 44;
-            }
-            function isChrome() {
-                return feid() === 51;
-            }
-            function isFirefox() {
-                return feid() === 25;
-            }
-            function isMSIE() {
-                return (navigator.msSaveBlob !== undefined && assertEvalToString(39));
-            }
-            /**
-             * Safari (Safari for iOS & macOS)
-             **/
-            function newSafariTest() {
-                const tmp_name = String(Math.random());
-                try {
-                    const db = window.indexedDB.open(tmp_name, 1);
-                    db.onupgradeneeded = function (i) {
-                        var _a;
-                        const res = i.target.result;
-                        try {
-                            res.createObjectStore('test', {
-                                autoIncrement: true
-                            }).put(new Blob());
-                            __callback(false);
-                        }
-                        catch (e) {
-                            let message = e;
-                            if (e instanceof Error) {
-                                message = (_a = e.message) !== null && _a !== void 0 ? _a : e;
-                            }
-                            if (typeof message !== 'string') {
-                                __callback(false);
-                                return;
-                            }
-                            const matchesExpectedError = message.includes('BlobURLs are not yet supported');
-                            __callback(matchesExpectedError);
-                            return;
-                        }
-                        finally {
-                            res.close();
-                            window.indexedDB.deleteDatabase(tmp_name);
-                        }
-                    };
-                }
-                catch (e) {
-                    __callback(false);
-                }
-            }
-            function oldSafariTest() {
-                const openDB = window.openDatabase;
-                const storage = window.localStorage;
-                try {
-                    openDB(null, null, null, null);
-                }
-                catch (e) {
-                    __callback(true);
-                    return;
-                }
-                try {
-                    storage.setItem('test', '1');
-                    storage.removeItem('test');
-                }
-                catch (e) {
-                    __callback(true);
-                    return;
-                }
-                __callback(false);
-            }
-            function safariPrivateTest() {
-                if (navigator.maxTouchPoints !== undefined) {
-                    newSafariTest();
-                }
-                else {
-                    oldSafariTest();
-                }
-            }
-            /**
-             * Chrome
-             **/
-            function getQuotaLimit() {
-                const w = window;
-                if (w.performance !== undefined &&
-                    w.performance.memory !== undefined &&
-                    w.performance.memory.jsHeapSizeLimit !== undefined) {
-                    return performance.memory.jsHeapSizeLimit;
-                }
-                return 1073741824;
-            }
-            // >= 76
-            function storageQuotaChromePrivateTest() {
-                navigator.webkitTemporaryStorage.queryUsageAndQuota(function (_, quota) {
-                    const quotaInMib = Math.round(quota / (1024 * 1024));
-                    const quotaLimitInMib = Math.round(getQuotaLimit() / (1024 * 1024)) * 2;
-                    __callback(quotaInMib < quotaLimitInMib);
-                }, function (e) {
-                    reject(new Error('detectIncognito somehow failed to query storage quota: ' +
-                        e.message));
-                });
-            }
-            // 50 to 75
-            function oldChromePrivateTest() {
-                const fs = window.webkitRequestFileSystem;
-                const success = function () {
-                    __callback(false);
-                };
-                const error = function () {
-                    __callback(true);
-                };
-                fs(0, 1, success, error);
-            }
-            function chromePrivateTest() {
-                if (self.Promise !== undefined && self.Promise.allSettled !== undefined) {
-                    storageQuotaChromePrivateTest();
-                }
-                else {
-                    oldChromePrivateTest();
-                }
-            }
-            /**
-             * Firefox
-             **/
-            function firefoxPrivateTest() {
-                __callback(navigator.serviceWorker === undefined);
-            }
-            /**
-             * MSIE
-             **/
-            function msiePrivateTest() {
-                __callback(window.indexedDB === undefined);
-            }
-            function main() {
-                if (isSafari()) {
-                    browserName = 'Safari';
-                    safariPrivateTest();
-                }
-                else if (isChrome()) {
-                    browserName = identifyChromium();
-                    chromePrivateTest();
-                }
-                else if (isFirefox()) {
-                    browserName = 'Firefox';
-                    firefoxPrivateTest();
-                }
-                else if (isMSIE()) {
-                    browserName = 'Internet Explorer';
-                    msiePrivateTest();
-                }
-                else {
-                    reject(new Error('detectIncognito cannot determine the browser'));
-                }
-            }
-            main();
-        });
-    }
-    if (typeof window !== 'undefined') {
-        window.detectIncognito = detectIncognito;
-    }
     async function botDetection() {
         try {
             const botd = await load();
             const result = await botd.detect();
-            // console.log(result);
             return result;
         }
         catch (error) {
@@ -1299,189 +1520,509 @@
             return null;
         }
     }
-    // botdPromise
-    //     .then((botd : any) => botd.detect())
-    //     .then((result : any) => console.log(result))
-    //     .catch((error : any) => console.error(error))
-    // UTILS 
+
+    async function createAudioFingerprint() {
+        const resultPromise = new Promise((resolve, reject) => {
+            try {
+                // Set up audio parameters
+                const sampleRate = 44100;
+                const numSamples = 5000;
+                const audioContext = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, numSamples, sampleRate);
+                const audioBuffer = audioContext.createBufferSource();
+                const analyser = audioContext.createAnalyser();
+                const frequencyData = new Float32Array(analyser.frequencyBinCount);
+                analyser.getFloatFrequencyData(frequencyData);
+                const oscillator = audioContext.createOscillator();
+                oscillator.frequency.value = 1000;
+                const compressor = audioContext.createDynamicsCompressor();
+                compressor.threshold.value = -50;
+                compressor.knee.value = 40;
+                compressor.ratio.value = 12;
+                compressor.attack.value = 0;
+                compressor.release.value = 0.2;
+                oscillator.connect(compressor);
+                compressor.connect(audioContext.destination);
+                oscillator.start();
+                audioContext.oncomplete = () => {
+                    resolve({
+                        'oscillator': oscillator.type,
+                        'maxChannels': audioContext.destination.maxChannelCount,
+                        'channelCountMode': audioBuffer.channelCountMode,
+                        'frequencyBinCount': analyser.frequencyBinCount,
+                    });
+                };
+                audioContext.startRendering();
+                // audioContext.close();
+            }
+            catch (error) {
+                console.error('Error creating audio fingerprint:', error);
+                reject(error);
+            }
+        });
+        return resultPromise;
+    }
+    includeComponent('audio', createAudioFingerprint);
+
+    async function ephemeralIFrame(callback) {
+        var _a;
+        while (!document.body) {
+            await wait(50);
+        }
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('frameBorder', '0');
+        const style = iframe.style;
+        style.setProperty('position', 'fixed');
+        style.setProperty('display', 'block', 'important');
+        style.setProperty('visibility', 'visible');
+        style.setProperty('border', '0');
+        style.setProperty('opacity', '0');
+        iframe.src = 'about:blank';
+        document.body.appendChild(iframe);
+        const iframeDocument = iframe.contentDocument || ((_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document);
+        if (!iframeDocument) {
+            throw new Error('Iframe document is not accessible');
+        }
+        // Execute the callback function with access to the iframe's document
+        callback({ iframe: iframeDocument });
+        // Clean up after running the callback
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+        }, 0);
+    }
+    function wait(durationMs, resolveWith) {
+        return new Promise((resolve) => setTimeout(resolve, durationMs, resolveWith));
+    }
+
+    function getBrowserName() {
+        function identifyChromium() {
+            const ua = navigator.userAgent;
+            if (ua.match(/Chrome/)) {
+                if (navigator.brave !== undefined) {
+                    return 'Brave';
+                }
+                else if (ua.match(/Edg/)) {
+                    return 'Edge';
+                }
+                else if (ua.match(/OPR/)) {
+                    return 'Opera';
+                }
+                return 'Chrome';
+            }
+            else {
+                return 'Chromium';
+            }
+        }
+        function feid() {
+            let toFixedEngineID = 0;
+            let neg = parseInt("-1");
+            try {
+                neg.toFixed(neg);
+            }
+            catch (e) {
+                toFixedEngineID = e.message.length;
+            }
+            return toFixedEngineID;
+        }
+        function isSafari() {
+            return feid() === 44;
+        }
+        function isChrome() {
+            return feid() === 51;
+        }
+        function isFirefox() {
+            return feid() === 25;
+        }
+        function assertEvalToString(value) {
+            return value === eval.toString().length;
+        }
+        function isMSIE() {
+            return (navigator.msSaveBlob !== undefined && assertEvalToString(39));
+        }
+        if (isSafari()) {
+            return 'Safari';
+        }
+        else if (isChrome()) {
+            return identifyChromium();
+        }
+        else if (isFirefox()) {
+            return 'Firefox';
+        }
+        else if (isMSIE()) {
+            return 'Internet Explorer';
+        }
+        return 'Unknown';
+    }
+
+    const availableFonts = [
+        'Arial',
+        'Arial Black',
+        'Arial Narrow',
+        'Arial Rounded MT',
+        'Arimo',
+        'Archivo',
+        'Barlow',
+        'Bebas Neue',
+        'Bitter',
+        'Bookman',
+        'Calibri',
+        'Cabin',
+        'Candara',
+        'Century',
+        'Century Gothic',
+        'Comic Sans MS',
+        'Constantia',
+        'Courier',
+        'Courier New',
+        'Crimson Text',
+        'DM Mono',
+        'DM Sans',
+        'DM Serif Display',
+        'DM Serif Text',
+        'Dosis',
+        'Droid Sans',
+        'Exo',
+        'Fira Code',
+        'Fira Sans',
+        'Franklin Gothic Medium',
+        'Garamond',
+        'Geneva',
+        'Georgia',
+        'Gill Sans',
+        'Helvetica',
+        'Impact',
+        'Inconsolata',
+        'Indie Flower',
+        'Inter',
+        'Josefin Sans',
+        'Karla',
+        'Lato',
+        'Lexend',
+        'Lucida Bright',
+        'Lucida Console',
+        'Lucida Sans Unicode',
+        'Manrope',
+        'Merriweather',
+        'Merriweather Sans',
+        'Montserrat',
+        'Myriad',
+        'Noto Sans',
+        'Nunito',
+        'Nunito Sans',
+        'Open Sans',
+        'Optima',
+        'Orbitron',
+        'Oswald',
+        'Pacifico',
+        'Palatino',
+        'Perpetua',
+        'PT Sans',
+        'PT Serif',
+        'Poppins',
+        'Prompt',
+        'Public Sans',
+        'Quicksand',
+        'Rajdhani',
+        'Recursive',
+        'Roboto',
+        'Roboto Condensed',
+        'Rockwell',
+        'Rubik',
+        'Segoe Print',
+        'Segoe Script',
+        'Segoe UI',
+        'Sora',
+        'Source Sans Pro',
+        'Space Mono',
+        'Tahoma',
+        'Taviraj',
+        'Times',
+        'Times New Roman',
+        'Titillium Web',
+        'Trebuchet MS',
+        'Ubuntu',
+        'Varela Round',
+        'Verdana',
+        'Work Sans',
+    ];
+    const baseFonts = ['monospace', 'sans-serif', 'serif'];
+    function getFontMetrics() {
+        return new Promise((resolve, reject) => {
+            try {
+                ephemeralIFrame(async ({ iframe }) => {
+                    const canvas = iframe.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const defaultWidths = baseFonts.map((font) => {
+                        return measureSingleFont(ctx, font);
+                    });
+                    let results = {};
+                    availableFonts.forEach((font) => {
+                        const fontWidth = measureSingleFont(ctx, font);
+                        if (!defaultWidths.includes(fontWidth))
+                            results[font] = fontWidth;
+                    });
+                    resolve(results);
+                });
+            }
+            catch (error) {
+                reject({ 'error': 'unsupported' });
+            }
+        });
+    }
+    function measureSingleFont(ctx, font) {
+        if (!ctx) {
+            throw new Error('Canvas context not supported');
+        }
+        const text = "WwMmLli0Oo";
+        ctx.font = `72px ${font}`; // Set a default font size
+        return ctx.measureText(text).width;
+    }
+    if (getBrowserName() != 'Firefox')
+        includeComponent('fonts', getFontMetrics);
+
+    function getHardwareInfo() {
+        return new Promise((resolve) => {
+            const memoryInfo = (window.performance && window.performance.memory) ? window.performance.memory : 0;
+            resolve({
+                'videocard': getVideoCard(),
+                'architecture': getArchitecture(),
+                'jsHeapSizeLimit': memoryInfo.jsHeapSizeLimit || 0
+            });
+        });
+    }
+    function getVideoCard() {
+        var _a;
+        const canvas = document.createElement('canvas');
+        const gl = (_a = canvas.getContext('webgl')) !== null && _a !== void 0 ? _a : canvas.getContext('experimental-webgl');
+        if (gl && 'getParameter' in gl) {
+            try {
+                // Try standard parameters first
+                const vendor = (gl.getParameter(gl.VENDOR) || '').toString();
+                const renderer = (gl.getParameter(gl.RENDERER) || '').toString();
+                let result = {
+                    vendor: vendor,
+                    renderer: renderer,
+                    version: (gl.getParameter(gl.VERSION) || '').toString(),
+                    shadingLanguageVersion: (gl.getParameter(gl.SHADING_LANGUAGE_VERSION) || '').toString(),
+                };
+                // Only try debug info if needed and available
+                const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+                if (debugInfo) {
+                    const vendorUnmasked = (gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || '').toString();
+                    const rendererUnmasked = (gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '').toString();
+                    // Only add unmasked values if they exist
+                    if (vendorUnmasked) {
+                        result.vendorUnmasked = vendorUnmasked;
+                    }
+                    if (rendererUnmasked) {
+                        result.rendererUnmasked = rendererUnmasked;
+                    }
+                }
+                return result;
+            }
+            catch (error) {
+                // fail silently
+            }
+        }
+        return "undefined";
+    }
+    function getArchitecture() {
+        const f = new Float32Array(1);
+        const u8 = new Uint8Array(f.buffer);
+        f[0] = Infinity;
+        f[0] = f[0] - f[0];
+        return u8[3];
+    }
+    includeComponent('hardware', getHardwareInfo);
+
+    function getLocales() {
+        return new Promise((resolve) => {
+            resolve({
+                'languages': getUserLanguage(),
+                'timezone': getUserTimezone()
+            });
+        });
+    }
+    function getUserLanguage() {
+        return navigator.language;
+    }
+    function getUserTimezone() {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
+    includeComponent('locales', getLocales);
+
+    function mostFrequentValue(arr) {
+        if (arr.length === 0) {
+            return null; // Return null for an empty array
+        }
+        const frequencyMap = {};
+        // Count occurrences of each element in the array
+        arr.forEach((element) => {
+            const key = String(element);
+            frequencyMap[key] = (frequencyMap[key] || 0) + 1;
+        });
+        let mostFrequent = arr[0]; // Assume the first element is the most frequent
+        let highestFrequency = 1; // Frequency of the assumed most frequent element
+        // Find the element with the highest frequency
+        Object.keys(frequencyMap).forEach((key) => {
+            if (frequencyMap[key] > highestFrequency) {
+                mostFrequent = key;
+                highestFrequency = frequencyMap[key];
+            }
+        });
+        return mostFrequent;
+    }
+    function mostFrequentValuesInArrayOfDictionaries(arr, keys) {
+        const result = {};
+        keys.forEach((key) => {
+            const valuesForKey = arr.map((obj) => (key in obj ? obj[key] : undefined)).filter((val) => val !== undefined);
+            const mostFrequentValueForKey = mostFrequentValue(valuesForKey);
+            if (mostFrequentValueForKey)
+                result[key] = mostFrequentValueForKey;
+        });
+        return result;
+    }
+
+    let permission_keys;
+    function initializePermissionKeys() {
+        permission_keys = (options === null || options === void 0 ? void 0 : options.permissions_to_check) || [
+            'accelerometer',
+            'accessibility', 'accessibility-events',
+            'ambient-light-sensor',
+            'background-fetch',
+            'background-sync',
+            'bluetooth',
+            'clipboard-read',
+            'clipboard-write',
+            'device-info',
+            'display-capture',
+            'gyroscope',
+            'local-fonts',
+            'magnetometer',
+            'midi',
+            'nfc', 'notifications',
+            'payment-handler',
+            'persistent-storage',
+            'speaker', 'storage-access',
+            'top-level-storage-access',
+            'window-management',
+            'query',
+        ];
+    }
+    async function getBrowserPermissions() {
+        initializePermissionKeys();
+        const permissionPromises = Array.from({ length: (options === null || options === void 0 ? void 0 : options.retries) || 3 }, () => getBrowserPermissionsOnce());
+        return Promise.all(permissionPromises).then((resolvedPermissions) => {
+            const permission = mostFrequentValuesInArrayOfDictionaries(resolvedPermissions, permission_keys);
+            return permission;
+        });
+    }
+    async function getBrowserPermissionsOnce() {
+        const permissionStatus = {};
+        for (const feature of permission_keys) {
+            try {
+                // Request permission status for each feature
+                const status = await navigator.permissions.query({ name: feature });
+                // Assign permission status to the object
+                permissionStatus[feature] = status.state.toString();
+            }
+            catch (error) {
+                // In case of errors (unsupported features, etc.), do nothing. Not listing them is the same as not supported
+            }
+        }
+        return permissionStatus;
+    }
+    includeComponent("permissions", getBrowserPermissions);
+
+    function screenDetails() {
+        return new Promise((resolve) => {
+            resolve({
+                'colorDepth': screen.colorDepth,
+            });
+        });
+    }
+    includeComponent('screen', screenDetails);
+
+    async function getSystemDetails() {
+        return new Promise((resolve) => {
+            const browser = getBrowserName();
+            console.log(browser);
+            resolve({
+                'platform': window.navigator.platform,
+                'cookieEnabled': window.navigator.cookieEnabled,
+                'productSub': navigator.productSub,
+                'product': navigator.product,
+                'browser': { 'name': browser },
+                'applePayVersion': getApplePayVersion()
+            });
+        });
+    }
     /**
-     * This code is taken from https://github.com/LinusU/murmur-128/blob/master/index.js
-     * But instead of dependencies to encode-utf8 and fmix, I've implemented them here.
+     * @returns applePayCanMakePayments: boolean, applePayMaxSupportedVersion: number
      */
-    function encodeUtf8(text) {
-        const encoder = new TextEncoder();
-        return encoder.encode(text).buffer;
-    }
-    function fmix(input) {
-        input ^= (input >>> 16);
-        input = Math.imul(input, 0x85ebca6b);
-        input ^= (input >>> 13);
-        input = Math.imul(input, 0xc2b2ae35);
-        input ^= (input >>> 16);
-        return (input >>> 0);
-    }
-    const C = new Uint32Array([
-        0x239b961b,
-        0xab0e9789,
-        0x38b34ae5,
-        0xa1e38b93
-    ]);
-    function rotl(m, n) {
-        return (m << n) | (m >>> (32 - n));
-    }
-    function body(key, hash) {
-        const blocks = (key.byteLength / 16) | 0;
-        const view32 = new Uint32Array(key, 0, blocks * 4);
-        for (let i = 0; i < blocks; i++) {
-            const k = view32.subarray(i * 4, (i + 1) * 4);
-            k[0] = Math.imul(k[0], C[0]);
-            k[0] = rotl(k[0], 15);
-            k[0] = Math.imul(k[0], C[1]);
-            hash[0] = (hash[0] ^ k[0]);
-            hash[0] = rotl(hash[0], 19);
-            hash[0] = (hash[0] + hash[1]);
-            hash[0] = Math.imul(hash[0], 5) + 0x561ccd1b;
-            k[1] = Math.imul(k[1], C[1]);
-            k[1] = rotl(k[1], 16);
-            k[1] = Math.imul(k[1], C[2]);
-            hash[1] = (hash[1] ^ k[1]);
-            hash[1] = rotl(hash[1], 17);
-            hash[1] = (hash[1] + hash[2]);
-            hash[1] = Math.imul(hash[1], 5) + 0x0bcaa747;
-            k[2] = Math.imul(k[2], C[2]);
-            k[2] = rotl(k[2], 17);
-            k[2] = Math.imul(k[2], C[3]);
-            hash[2] = (hash[2] ^ k[2]);
-            hash[2] = rotl(hash[2], 15);
-            hash[2] = (hash[2] + hash[3]);
-            hash[2] = Math.imul(hash[2], 5) + 0x96cd1c35;
-            k[3] = Math.imul(k[3], C[3]);
-            k[3] = rotl(k[3], 18);
-            k[3] = Math.imul(k[3], C[0]);
-            hash[3] = (hash[3] ^ k[3]);
-            hash[3] = rotl(hash[3], 13);
-            hash[3] = (hash[3] + hash[0]);
-            hash[3] = Math.imul(hash[3], 5) + 0x32ac3b17;
+    function getApplePayVersion() {
+        if (window.location.protocol === 'https:' && typeof window.ApplePaySession === 'function') {
+            try {
+                const versionCheck = window.ApplePaySession.supportsVersion;
+                for (let i = 15; i > 0; i--) {
+                    if (versionCheck(i)) {
+                        return i;
+                    }
+                }
+            }
+            catch (error) {
+                return 0;
+            }
         }
+        return 0;
     }
-    function tail(key, hash) {
-        const blocks = (key.byteLength / 16) | 0;
-        const reminder = (key.byteLength % 16);
-        const k = new Uint32Array(4);
-        const tail = new Uint8Array(key, blocks * 16, reminder);
-        switch (reminder) {
-            case 15:
-                k[3] = (k[3] ^ (tail[14] << 16));
-                break; // fallthrough
-            case 14:
-                k[3] = (k[3] ^ (tail[13] << 8));
-                break; // fallthrough
-            case 13:
-                k[3] = (k[3] ^ (tail[12] << 0));
-                break;
-            // fallthrough
-            case 12:
-                k[2] = (k[2] ^ (tail[11] << 24));
-                break; // fallthrough
-            case 11:
-                k[2] = (k[2] ^ (tail[10] << 16));
-                break;
-            // fallthrough
-            case 10:
-                k[2] = (k[2] ^ (tail[9] << 8));
-                break;
-            // fallthrough
-            case 9:
-                k[2] = (k[2] ^ (tail[8] << 0));
-                k[2] = Math.imul(k[2], C[2]);
-                k[2] = rotl(k[2], 17);
-                k[2] = Math.imul(k[2], C[3]);
-                hash[2] = (hash[2] ^ k[2]);
-                break;
-            // fallthrough
-            case 8:
-                k[1] = (k[1] ^ (tail[7] << 24));
-                break;
-            // fallthrough
-            case 7:
-                k[1] = (k[1] ^ (tail[6] << 16));
-                break;
-            // fallthrough
-            case 6:
-                k[1] = (k[1] ^ (tail[5] << 8));
-                break;
-            // fallthrough
-            case 5:
-                k[1] = (k[1] ^ (tail[4] << 0));
-                k[1] = Math.imul(k[1], C[1]);
-                k[1] = rotl(k[1], 16);
-                k[1] = Math.imul(k[1], C[2]);
-                hash[1] = (hash[1] ^ k[1]);
-                break;
-            // fallthrough
-            case 4:
-                k[0] = (k[0] ^ (tail[3] << 24));
-                break;
-            // fallthrough
-            case 3:
-                k[0] = (k[0] ^ (tail[2] << 16));
-                break;
-            // fallthrough
-            case 2:
-                k[0] = (k[0] ^ (tail[1] << 8));
-                break;
-            // fallthrough
-            case 1:
-                k[0] = (k[0] ^ (tail[0] << 0));
-                k[0] = Math.imul(k[0], C[0]);
-                k[0] = rotl(k[0], 15);
-                k[0] = Math.imul(k[0], C[1]);
-                hash[0] = (hash[0] ^ k[0]);
-                break;
-        }
-    }
-    function finalize(key, hash) {
-        hash[0] = (hash[0] ^ key.byteLength);
-        hash[1] = (hash[1] ^ key.byteLength);
-        hash[2] = (hash[2] ^ key.byteLength);
-        hash[3] = (hash[3] ^ key.byteLength);
-        hash[0] = (hash[0] + hash[1]) | 0;
-        hash[0] = (hash[0] + hash[2]) | 0;
-        hash[0] = (hash[0] + hash[3]) | 0;
-        hash[1] = (hash[1] + hash[0]) | 0;
-        hash[2] = (hash[2] + hash[0]) | 0;
-        hash[3] = (hash[3] + hash[0]) | 0;
-        hash[0] = fmix(hash[0]);
-        hash[1] = fmix(hash[1]);
-        hash[2] = fmix(hash[2]);
-        hash[3] = fmix(hash[3]);
-        hash[0] = (hash[0] + hash[1]) | 0;
-        hash[0] = (hash[0] + hash[2]) | 0;
-        hash[0] = (hash[0] + hash[3]) | 0;
-        hash[1] = (hash[1] + hash[0]) | 0;
-        hash[2] = (hash[2] + hash[0]) | 0;
-        hash[3] = (hash[3] + hash[0]) | 0;
-    }
-    function hash(key, seed = 0) {
-        seed = (seed ? (seed | 0) : 0);
-        if (typeof key === 'string') {
-            key = encodeUtf8(key);
-        }
-        if (!(key instanceof ArrayBuffer)) {
-            throw new TypeError('Expected key to be ArrayBuffer or string');
-        }
-        const hash = new Uint32Array([seed, seed, seed, seed]);
-        body(key, hash);
-        tail(key, hash);
-        finalize(key, hash);
-        const byteArray = new Uint8Array(hash.buffer);
-        return Array.from(byteArray).map(byte => byte.toString(16).padStart(2, '0')).join('');
-    }
-    let options = {
-        exclude: [],
-        include: [],
-        logging: true,
+    includeComponent('system', getSystemDetails);
+
+    const getMathInfo = async () => {
+        return {
+            acos: Math.acos(0.5),
+            asin: integrate(Math.asin, -1, 1, 97),
+            atan: integrate(Math.atan, -1, 1, 97),
+            cos: integrate(Math.cos, 0, Math.PI, 97),
+            cosh: Math.cosh(9 / 7),
+            e: Math.E,
+            largeCos: Math.cos(1e20),
+            largeSin: Math.sin(1e20),
+            largeTan: Math.tan(1e20),
+            log: Math.log(1000),
+            pi: Math.PI,
+            sin: integrate(Math.sin, -Math.PI, Math.PI, 97),
+            sinh: integrate(Math.sinh, -9 / 7, 7 / 9, 97),
+            sqrt: Math.sqrt(2),
+            tan: integrate(Math.tan, 0, 2 * Math.PI, 97),
+            tanh: integrate(Math.tanh, -9 / 7, 7 / 9, 97),
+        };
     };
+    /** This might be a little excessive, but I wasn't sure what number to pick for some of the
+     * trigonometric functions. Using an integral here, so a few numbers are calculated. However,
+     * I do this mainly for those integrals that sum up to a small value, otherwise there's no point.
+    */
+    const integrate = (f, a, b, n) => {
+        const h = (b - a) / n;
+        let sum = 0;
+        for (let i = 0; i < n; i++) {
+            const x = a + (i + 0.5) * h;
+            sum += f(x);
+        }
+        return sum * h;
+    };
+    includeComponent('math', getMathInfo);
+
+    // Floating-point calculations (Math.sin(), Math.log()) produce slightly different results across CPUs due to:
+    // Extremely hard to spoof without emulating a different CPU.
+    function getCPUFingerprint() {
+        return {
+            sin1: Math.sin(1),
+            log10: Math.log(10),
+            tanh05: Math.tanh(0.5),
+        };
+    }
+    // includeComponent('navigator', navigatorProperties)
+    includeComponent('CPU', getCPUFingerprint);
 
     function trackBehaviour(config) {
         return [];
@@ -1491,10 +2032,7 @@
     // Export a named object for combined functionality
     const rayyanJS = {
         device: {
-            detectIncognito,
-            detectTorBrowser,
-            botDetection,
-            getDeviceFingerprint
+            getFingerprint
         },
         behaviour: {
             trackBehaviour
@@ -1504,10 +2042,7 @@
     exports.botDetection = botDetection;
     exports.detectIncognito = detectIncognito;
     exports.detectTorBrowser = detectTorBrowser;
-    exports.getDeviceFingerprint = getDeviceFingerprint;
-    exports.getVersion = getVersion;
-    exports.hash = hash;
-    exports.options = options;
+    exports.getFingerprint = getFingerprint;
     exports.rayyanJS = rayyanJS;
     exports.trackBehaviour = trackBehaviour;
 

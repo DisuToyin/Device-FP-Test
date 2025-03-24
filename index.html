@@ -30,7 +30,7 @@
                 document.getElementById(id).innerText = content;
             }
 
-            const fpData = await RayyanJS?.getDeviceFingerprint();
+            const fpData = await RayyanJS?.getFingerprint();
             updateElement("fingerprintData", JSON.stringify(fpData, null, 2));
 
             const incognito = await RayyanJS?.detectIncognito();
