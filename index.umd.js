@@ -274,12 +274,46 @@
     async function getFingerprint() {
         try {
             const fingerprintData = await getFingerprintData();
-            const thisHash = hash(JSON.stringify(fingerprintData));
-            return { hash: thisHash.toString(), data: fingerprintData };
+            const hashData = getHashRelevantData(fingerprintData);
+            // console.log(fingerprintData)
+            const thisHash = hash(JSON.stringify(hashData));
+            const componentsUsedForHash = getHashRelevantKeys(fingerprintData);
+            return {
+                hash: thisHash.toString(),
+                data: fingerprintData,
+                componentsUsedForHash: componentsUsedForHash
+            };
         }
         catch (error) {
             throw error;
         }
+    }
+    function hashObject(data) {
+        return {
+            audio: data.audio,
+            fonts: data.fonts,
+            hardware: data.hardware,
+            locales: data.locales,
+            permissions: data.permissions,
+            screen: data.screen,
+            system: data.system,
+            emojiFingerprint: data.emojiFingerprint,
+            math: data.maths,
+            domBlockers: data.domBlockers,
+            monochrome: data.monochrome,
+            forcedColors: data.forcedColors,
+            colorGamut: data.colorGamut,
+            audioLatency: data.audioLatency,
+            osCpu: data.osCpu,
+            vendorFlavours: data.vendorFlavors
+        };
+    }
+    function getHashRelevantData(data) {
+        return hashObject(data);
+    }
+    function getHashRelevantKeys(data) {
+        const fpdata = hashObject(data);
+        return Object.keys(fpdata);
     }
 
     async function detectTorBrowser() {
@@ -805,7 +839,7 @@
         }
         return false;
     }
-    function countTruthy(values) {
+    function countTruthy$1(values) {
         return values.reduce(function (sum, value) { return sum + (value ? 1 : 0); }, 0);
     }
 
@@ -1043,7 +1077,7 @@
         // Based on research in October 2020. Tested to detect Chromium 42-86.
         var w = window;
         var n = navigator;
-        if (countTruthy([
+        if (countTruthy$1([
             'webkitPersistentStorage' in n,
             'webkitTemporaryStorage' in n,
             n.vendor.indexOf('Google') === 0,
@@ -1054,7 +1088,7 @@
         ]) >= 5) {
             return "chromium" /* BrowserEngineKind.Chromium */;
         }
-        if (countTruthy([
+        if (countTruthy$1([
             'ApplePayError' in w,
             'CSSPrimitiveValue' in w,
             'Counter' in w,
@@ -1064,7 +1098,7 @@
         ]) >= 4) {
             return "webkit" /* BrowserEngineKind.Webkit */;
         }
-        if (countTruthy([
+        if (countTruthy$1([
             'buildID' in navigator,
             'MozAppearance' in ((_b = (_a = document.documentElement) === null || _a === void 0 ? void 0 : _a.style) !== null && _b !== void 0 ? _b : {}),
             'onmozfullscreenchange' in w,
@@ -1105,7 +1139,7 @@
         }
     }
     // Source: https://github.com/fingerprintjs/fingerprintjs/blob/master/src/utils/browser.ts#L223
-    function isAndroid() {
+    function isAndroid$1() {
         var browserEngineKind = getBrowserEngineKind();
         var isItChromium = browserEngineKind === "chromium" /* BrowserEngineKind.Chromium */;
         var isItGecko = browserEngineKind === "gecko" /* BrowserEngineKind.Gecko */;
@@ -1116,7 +1150,7 @@
         var w = window;
         // Chrome removes all words "Android" from `navigator` when desktop version is requested
         // Firefox keeps "Android" in `navigator.appVersion` when desktop version is requested
-        return (countTruthy([
+        return (countTruthy$1([
             'onorientationchange' in w,
             'orientation' in w,
             isItChromium && !('SharedWorker' in w),
@@ -1132,7 +1166,7 @@
     function isChromium86OrNewer() {
         // Checked in Chrome 85 vs Chrome 86 both on desktop and Android
         var w = window;
-        return (countTruthy([
+        return (countTruthy$1([
             !('MediaSettingsRange' in w),
             'RTCEncodedAudioFrame' in w,
             '' + w.Intl === '[object Intl]',
@@ -1396,7 +1430,7 @@
     }
 
     var sources = {
-        android: isAndroid,
+        android: isAndroid$1,
         browserKind: getBrowserKind,
         browserEngineKind: getBrowserEngineKind,
         documentFocus: getDocumentFocus,
@@ -1521,6 +1555,633 @@
         }
     }
 
+    /**
+     * Detect browser using multiple techniques to be resilient against spoofing and user agent changes
+     */
+    function getBrowserName() {
+        const details = detectBrowser();
+        return details.name;
+    }
+    /**
+     * Enhanced browser detection that uses multiple techniques to identify the browser
+     * with high confidence even when user agent is spoofed or in mobile simulation mode
+     */
+    function detectBrowser() {
+        // Default result with low confidence
+        const result = {
+            name: 'Unknown',
+            version: 'Unknown',
+            confidence: 0,
+            engine: 'Unknown'
+        };
+        // Collection of detection results with confidence scores
+        const detections = [];
+        // First check for Edge in user agent (this is a fast check before other more intensive checks)
+        const ua = navigator.userAgent.toLowerCase();
+        if (ua.indexOf('edg/') !== -1 || ua.indexOf('edge/') !== -1) {
+            detections.push({ name: 'Edge', confidence: 75 });
+        }
+        // 1. Engine detection based on error messages (more reliable than UA)
+        const engineSignatures = getEngineSignatures();
+        detectByEngineSignatures(detections, engineSignatures);
+        // 2. Feature detection for specific browsers
+        detectByFeatures(detections);
+        // 3. Protocol handler detection
+        detectByProtocolHandlers(detections);
+        // 4. CSS property detection
+        detectByCssProperties(detections);
+        // 5. Performance timing
+        detectByPerformance(detections);
+        // 6. JavaScript behavior patterns
+        detectByJsBehavior(detections);
+        // 7. Edge-specific detection - separate function to better differentiate Edge from Chrome
+        detectEdgeBrowser(detections);
+        // 8. Chrome-specific detection - enhanced Chrome detection
+        detectChromeBrowser(detections);
+        // 9. Brave-specific detection - get specific Brave signals
+        detectBraveBrowser(detections);
+        // Combine all detection results and calculate final browser with confidence
+        if (detections.length > 0) {
+            // Group by browser name and sum confidence
+            const grouped = detections.reduce((acc, curr) => {
+                acc[curr.name] = (acc[curr.name] || 0) + curr.confidence;
+                return acc;
+            }, {});
+            // Find the browser with highest confidence
+            let maxConfidence = 0;
+            let detectedBrowser = 'Unknown';
+            for (const [browser, confidence] of Object.entries(grouped)) {
+                if (confidence > maxConfidence) {
+                    maxConfidence = confidence;
+                    detectedBrowser = browser;
+                }
+            }
+            // Extra Edge check - check if incognito detection can confirm this is Edge
+            if (detectedBrowser === 'Chrome' && isActuallyEdge()) {
+                detectedBrowser = 'Edge';
+            }
+            result.name = detectedBrowser;
+            result.confidence = Math.min(100, maxConfidence);
+            // Set engine based on browser
+            if (['Chrome', 'Edge', 'Opera', 'Brave'].includes(detectedBrowser)) {
+                result.engine = 'Blink';
+            }
+            else if (detectedBrowser === 'Firefox') {
+                result.engine = 'Gecko';
+            }
+            else if (detectedBrowser === 'Safari') {
+                result.engine = 'WebKit';
+            }
+            // Try to extract version
+            result.version = getBrowserVersion(detectedBrowser);
+        }
+        return result;
+    }
+    /**
+     * Special detection for Brave browser
+     */
+    function detectBraveBrowser(detections) {
+        try {
+            // Check for Brave API directly
+            if (navigator.brave) {
+                detections.push({ name: 'Brave', confidence: 95 });
+                return;
+            }
+            // Check for specific Brave patterns in the user agent
+            const ua = navigator.userAgent;
+            if (ua.includes('Brave') || ua.includes('brave')) {
+                detections.push({ name: 'Brave', confidence: 90 });
+                return;
+            }
+            // Brave specific behavior checks
+            // 1. Brave removes certain tracking headers
+            // 2. Brave blocks fingerprinting by default
+            // 3. Brave has specific privacy features
+            // Check for Chrome without Google Chrome-specific features
+            if (typeof window.chrome !== 'undefined' &&
+                window.chrome.runtime &&
+                !window.google) {
+                // Additional check for absence of Chrome-specific features
+                const hasNoChromeFeatures = !('google' in window) &&
+                    !window.chrome.webstore &&
+                    typeof navigator.brave !== 'undefined';
+                if (hasNoChromeFeatures) {
+                    detections.push({ name: 'Brave', confidence: 60 });
+                }
+            }
+        }
+        catch (e) {
+            // Ignore detection errors
+        }
+    }
+    /**
+     * Specific check to determine if a browser is Edge by using the same techniques
+     * that incognito detection uses, which seems to report Edge correctly
+     */
+    function isActuallyEdge() {
+        try {
+            // Check user agent for Edge keywords
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.indexOf('edg/') !== -1 || ua.indexOf('edge/') !== -1) {
+                return true;
+            }
+            // Check if any MS-specific APIs or DOM elements are available
+            if (window.msCredentials ||
+                document.documentMode ||
+                typeof window.MSInputMethodContext !== 'undefined' ||
+                typeof navigator.msLaunchUri === 'function') {
+                return true;
+            }
+            // Check Edge-specific combination of features
+            if (typeof window.chrome !== 'undefined' &&
+                window.chrome.runtime &&
+                !window.chrome.webstore &&
+                !window.opr &&
+                !window.opera) {
+                // Additional Edge-specific check
+                try {
+                    // Edge typically does not have the Chrome PDF viewer plugin
+                    const hasChromePdfViewer = Array.from(navigator.plugins)
+                        .some(plugin => plugin.name === 'Chrome PDF Viewer');
+                    // Check for unique Edge plugin patterns
+                    const hasEdgePluginPattern = Array.from(navigator.plugins)
+                        .some(plugin => plugin.name.indexOf('Edge') !== -1);
+                    if (!hasChromePdfViewer || hasEdgePluginPattern) {
+                        return true;
+                    }
+                }
+                catch (e) {
+                    // Plugin check failed
+                }
+            }
+            return false;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    /**
+     * Gets browser error behavior signature from various engine-specific behaviors
+     */
+    function getEngineSignatures() {
+        // Error message length from toFixed with negative values
+        let toFixedErrorLength = 0;
+        try {
+            const neg = parseInt("-1");
+            neg.toFixed(neg);
+        }
+        catch (e) {
+            toFixedErrorLength = e.message.length;
+        }
+        // Function.toString() behavior - varies by browser
+        let functionToStringLength = 0;
+        try {
+            functionToStringLength = Function.prototype.toString.call(Function).length;
+        }
+        catch (e) {
+            // Ignore error
+        }
+        return {
+            toFixedErrorLength,
+            functionToStringLength
+        };
+    }
+    /**
+     * Detects browsers based on engine-specific error message patterns
+     */
+    function detectByEngineSignatures(detections, signatures) {
+        // Safari typically has error message length of 44
+        if (signatures.toFixedErrorLength === 44) {
+            detections.push({ name: 'Safari', confidence: 40 });
+        }
+        // Chrome typically has error message length of 51
+        else if (signatures.toFixedErrorLength === 51) {
+            detections.push({ name: 'Chrome', confidence: 30 }); // Increased from 15
+        }
+        // Firefox typically has error message length of 25
+        else if (signatures.toFixedErrorLength === 25) {
+            detections.push({ name: 'Firefox', confidence: 30 });
+        }
+        // Function.toString length can help differentiate browsers too
+        if (signatures.functionToStringLength > 30 && signatures.functionToStringLength < 40) {
+            detections.push({ name: 'Firefox', confidence: 10 });
+        }
+        else if (signatures.functionToStringLength > 40) {
+            detections.push({ name: 'Chrome', confidence: 15 }); // Increased from 5
+        }
+    }
+    /**
+     * Detects browser by checking for browser-specific features and APIs
+     */
+    function detectByFeatures(detections) {
+        // Brave detection
+        if (navigator.brave &&
+            typeof navigator.brave.isBrave === 'function') {
+            detections.push({ name: 'Brave', confidence: 90 });
+        }
+        // Check for Chrome-specific APIs
+        if (typeof window.chrome !== 'undefined' &&
+            window.chrome.app &&
+            window.chrome.runtime) {
+            // First check if it's not actually Edge
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.indexOf('edg/') === -1 && ua.indexOf('edge/') === -1) {
+                if (navigator.brave === undefined) {
+                    detections.push({ name: 'Chrome', confidence: 40 }); // Increased from 25
+                }
+            }
+            else {
+                // This is more likely Edge than Chrome
+                detections.push({ name: 'Edge', confidence: 40 });
+            }
+        }
+        // Additional Chrome-specific feature detection
+        if (window.chrome &&
+            window.chrome.csi &&
+            window.chrome.loadTimes &&
+            !window.opr &&
+            !window.opera &&
+            !(navigator.brave && typeof navigator.brave.isBrave === 'function')) {
+            // These features are very specific to Chrome and not present in most other Chromium browsers
+            detections.push({ name: 'Chrome', confidence: 60 });
+        }
+        // Firefox-specific objects
+        if (typeof window.InstallTrigger !== 'undefined' ||
+            typeof window.sidebar !== 'undefined') {
+            detections.push({ name: 'Firefox', confidence: 70 });
+        }
+        // Safari detection
+        if (/constructor/i.test(window.HTMLElement) ||
+            (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!(typeof window.safari === 'undefined') && window.safari.pushNotification)) {
+            detections.push({ name: 'Safari', confidence: 70 });
+        }
+        // Basic Edge detection - more detailed in detectEdgeBrowser function
+        if (window.msCredentials || document.documentMode) {
+            detections.push({ name: 'Edge', confidence: 60 }); // Increased confidence
+        }
+        // Opera detection
+        if (window.opr || window.opera) {
+            detections.push({ name: 'Opera', confidence: 60 });
+        }
+    }
+    /**
+     * Detects browser by checking for browser-specific protocol handlers
+     */
+    function detectByProtocolHandlers(detections) {
+        // Chrome/Chromium protocols
+        if (typeof navigator.registerProtocolHandler === 'function') {
+            try {
+                if ('chrome' in window) {
+                    // Only consider chrome protocol if not Edge
+                    const ua = navigator.userAgent.toLowerCase();
+                    if (ua.indexOf('edg/') === -1 && ua.indexOf('edge/') === -1) {
+                        detections.push({ name: 'Chrome', confidence: 25 }); // Increased from 15
+                    }
+                }
+                // Edge has ms-* protocols available
+                if ('ms-access' in navigator ||
+                    'ms-browser-extension' in navigator ||
+                    'ms-calculator' in navigator ||
+                    'ms-drive-to' in navigator ||
+                    'ms-excel' in navigator ||
+                    'ms-gamebarservices' in navigator ||
+                    'ms-search' in navigator ||
+                    'ms-word' in navigator) {
+                    detections.push({ name: 'Edge', confidence: 80 }); // Increased confidence
+                }
+                // Opera has specific protocol handlers
+                if ('opr:' in navigator.plugins ||
+                    'opera:' in navigator.plugins) {
+                    detections.push({ name: 'Opera', confidence: 25 });
+                }
+            }
+            catch (e) {
+                // Protocol detection failed
+            }
+        }
+    }
+    /**
+     * Detects browser by checking for browser-specific CSS properties
+     */
+    function detectByCssProperties(detections) {
+        const docStyle = window.getComputedStyle(document.documentElement);
+        // Webkit-specific properties
+        if (docStyle.getPropertyValue('--apple-trailing-word') !== '' ||
+            docStyle.getPropertyValue('-webkit-app-region') !== '') {
+            detections.push({ name: 'Safari', confidence: 20 });
+        }
+        // Firefox-specific properties
+        if (docStyle.getPropertyValue('-moz-context-properties') !== '' ||
+            docStyle.getPropertyValue('-moz-user-focus') !== '') {
+            detections.push({ name: 'Firefox', confidence: 20 });
+        }
+        // Edge-specific CSS properties
+        if (docStyle.getPropertyValue('-ms-ime-align') !== '' ||
+            docStyle.getPropertyValue('-ms-flow-from') !== '') {
+            detections.push({ name: 'Edge', confidence: 60 }); // Increased confidence
+        }
+    }
+    /**
+     * Detects browser by analyzing performance characteristics
+     */
+    function detectByPerformance(detections) {
+        // Chrome/Chromium-based browsers expose memory info
+        if (performance.memory &&
+            performance.memory.jsHeapSizeLimit) {
+            // Different Chromium browsers have different heap size limits
+            const heapLimit = performance.memory.jsHeapSizeLimit;
+            if (heapLimit > 2000000000) {
+                // Check if it's not actually Edge before assuming Chrome
+                const ua = navigator.userAgent.toLowerCase();
+                if (ua.indexOf('edg/') === -1 && ua.indexOf('edge/') === -1) {
+                    detections.push({ name: 'Chrome', confidence: 20 }); // Increased from 10
+                }
+            }
+        }
+        // Chrome-specific performance timing features
+        if (typeof window.chrome !== 'undefined' &&
+            typeof window.chrome.loadTimes === 'function') {
+            try {
+                const chromeLoad = window.chrome.loadTimes();
+                if (chromeLoad &&
+                    typeof chromeLoad.firstPaintTime === 'number' &&
+                    typeof chromeLoad.requestTime === 'number') {
+                    detections.push({ name: 'Chrome', confidence: 30 });
+                }
+            }
+            catch (e) {
+                // Performance timing check failed
+            }
+        }
+    }
+    /**
+     * Detects browser by JavaScript behavior patterns
+     */
+    function detectByJsBehavior(detections) {
+        // Firefox specific behavior with error stack
+        try {
+            throw new Error();
+        }
+        catch (err) {
+            if (err.stack && err.stack.indexOf('()@') >= 0) {
+                detections.push({ name: 'Firefox', confidence: 15 });
+            }
+            // Chrome-specific stack trace format
+            if (err.stack && err.stack.indexOf('at new') >= 0) {
+                // Check if it's not actually Edge
+                const ua = navigator.userAgent.toLowerCase();
+                if (ua.indexOf('edg/') === -1 && ua.indexOf('edge/') === -1) {
+                    detections.push({ name: 'Chrome', confidence: 20 }); // Increased from 10
+                }
+            }
+            // Safari-specific stack trace format
+            if (err.stack && err.stack.indexOf('@') === -1 && err.stack.indexOf('at ') === -1) {
+                detections.push({ name: 'Safari', confidence: 15 });
+            }
+        }
+        // Brave shields detection
+        if (document.createElement('canvas').toDataURL().length > 15 &&
+            navigator.brave === undefined &&
+            typeof window.chrome !== 'undefined') {
+            // Try to detect if Brave shields are on
+            const img = new Image();
+            let loadCount = 0;
+            img.onload = () => {
+                loadCount++;
+                if (loadCount === 0) {
+                    detections.push({ name: 'Brave', confidence: 20 });
+                }
+            };
+            img.onerror = () => {
+                detections.push({ name: 'Brave', confidence: 10 });
+            };
+            // Try loading a tracking pixel
+            img.src = "https://www.facebook.com/tr?id=1234567890&ev=PageView";
+        }
+        // Additional Chrome-specific behavior check (Chrome DevTools Protocol)
+        try {
+            // Check if __JQUERY_OBJECT__ is defined (used in Chrome Developer Tools)
+            // This will throw an error in most other browsers
+            const hasDevTools = !!window.__JQUERY_OBJECT__;
+            if (hasDevTools) {
+                detections.push({ name: 'Chrome', confidence: 15 });
+            }
+        }
+        catch (e) {
+            // DevTools check failed
+        }
+        // Check Chrome user agent pattern more directly when combined with other Chrome features
+        if (navigator.userAgent.indexOf('Chrome') !== -1 &&
+            navigator.userAgent.indexOf('Edg') === -1 &&
+            navigator.userAgent.indexOf('OPR') === -1 &&
+            navigator.userAgent.indexOf('Brave') === -1 &&
+            typeof window.chrome !== 'undefined' &&
+            window.chrome.runtime) {
+            detections.push({ name: 'Chrome', confidence: 35 });
+        }
+    }
+    /**
+     * Specialized Edge browser detection to differentiate it from Chrome
+     */
+    function detectEdgeBrowser(detections) {
+        // Check for Edge in User Agent as a supplementary signal (still useful)
+        const ua = navigator.userAgent.toLowerCase();
+        if (ua.indexOf('edg/') !== -1 || ua.indexOf('edge/') !== -1) {
+            detections.push({ name: 'Edge', confidence: 80 }); // Increased from 30 to 80
+        }
+        // Check for Edge-specific objects
+        try {
+            // Check for CSS.supports method with -ms vendor prefix
+            if (CSS.supports('-ms-ime-align', 'auto')) {
+                detections.push({ name: 'Edge', confidence: 70 }); // Increased confidence
+            }
+        }
+        catch (e) {
+            // CSS.supports might not be available
+        }
+        // Check for Edge-specific behaviors
+        try {
+            // Test if msLaunchUri is available (Edge-specific)
+            if (typeof navigator.msLaunchUri === 'function') {
+                detections.push({ name: 'Edge', confidence: 85 }); // Increased confidence
+            }
+            // Test if MS-specific APIs are available
+            if (typeof window.MSInputMethodContext !== 'undefined') {
+                detections.push({ name: 'Edge', confidence: 80 }); // Increased confidence
+            }
+            // Check for Edge-specific storage behavior
+            if (document.documentMode || /edge/i.test(navigator.userAgent)) {
+                detections.push({ name: 'Edge', confidence: 75 }); // Increased confidence
+            }
+            // Check window.chrome properties patterns specific to Edge
+            if (typeof window.chrome !== 'undefined' &&
+                window.chrome.runtime &&
+                !window.chrome.webstore) {
+                // This combination is more common in Edge than Chrome
+                detections.push({ name: 'Edge', confidence: 60 }); // Increased confidence
+            }
+        }
+        catch (e) {
+            // Ignore errors in detection
+        }
+        // Get text rendering metrics - Edge and Chrome render text differently
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                canvas.width = 200;
+                canvas.height = 50;
+                ctx.font = '20px Arial';
+                ctx.textBaseline = 'top';
+                ctx.fillText('EdgeBrowserTest', 0, 0);
+                // Get image data to analyze text rendering
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                // Create a simple hash of the first few pixels
+                let hash = 0;
+                for (let i = 0; i < 400; i += 4) {
+                    hash = ((hash << 5) - hash) + imageData[i];
+                }
+                // Edge typically has different text rendering than Chrome
+                if (hash < 0) { // Just an example threshold, would need calibration
+                    detections.push({ name: 'Edge', confidence: 50 }); // Increased confidence
+                }
+            }
+        }
+        catch (e) {
+            // Canvas access might be restricted
+        }
+    }
+    /**
+     * Enhanced detection for Chrome browser
+     */
+    function detectChromeBrowser(detections) {
+        // Complex feature combination check specific to Chrome but not other Chromium browsers
+        if (
+        // Must have Chrome in user agent but not be Edge or Opera
+        navigator.userAgent.indexOf('Chrome') !== -1 &&
+            navigator.userAgent.indexOf('Edg') === -1 &&
+            navigator.userAgent.indexOf('OPR') === -1 &&
+            // Must have chrome object with specific properties
+            typeof window.chrome !== 'undefined' &&
+            window.chrome.runtime &&
+            // Check for Chrome-exclusive features
+            typeof window.chrome.loadTimes === 'function' &&
+            typeof window.chrome.csi === 'function' &&
+            // Ensure not Brave
+            typeof navigator.brave === 'undefined') {
+            detections.push({ name: 'Chrome', confidence: 75 });
+        }
+        // Check for Chrome PDF viewer plugin (generally not present in other Chromium browsers)
+        try {
+            const hasPdfViewer = Array.from(navigator.plugins)
+                .some(plugin => plugin.name === 'Chrome PDF Viewer');
+            if (hasPdfViewer &&
+                navigator.userAgent.indexOf('Chrome') !== -1 &&
+                navigator.userAgent.indexOf('Edg') === -1) {
+                detections.push({ name: 'Chrome', confidence: 60 });
+            }
+        }
+        catch (e) {
+            // Plugin check failed
+        }
+        // Check Chrome version consistency in User Agent
+        // This helps differentiate from browsers that modify the Chrome version string
+        try {
+            const chromeMatch = navigator.userAgent.match(/Chrome\/([0-9.]+)/);
+            if (chromeMatch) {
+                const chromeVersion = chromeMatch[1];
+                // If app version contains the Chrome version and doesn't have Edg
+                if (navigator.appVersion.indexOf(chromeVersion) !== -1 &&
+                    navigator.userAgent.indexOf('Edg') === -1 &&
+                    navigator.userAgent.indexOf('OPR') === -1) {
+                    detections.push({ name: 'Chrome', confidence: 30 });
+                }
+            }
+        }
+        catch (e) {
+            // Version check failed
+        }
+    }
+    /**
+     * Attempts to get the browser version
+     */
+    function getBrowserVersion(browserName) {
+        const userAgent = navigator.userAgent;
+        let version = 'Unknown';
+        try {
+            if (browserName === 'Chrome') {
+                const match = userAgent.match(/Chrome\/([0-9.]+)/);
+                if (match) {
+                    version = match[1];
+                }
+            }
+            else if (browserName === 'Firefox') {
+                const match = userAgent.match(/Firefox\/([0-9.]+)/);
+                if (match) {
+                    version = match[1];
+                }
+            }
+            else if (browserName === 'Safari') {
+                const match = userAgent.match(/Version\/([0-9.]+)/);
+                if (match) {
+                    version = match[1];
+                }
+            }
+            else if (browserName === 'Edge') {
+                // Modern Edge (Chromium-based)
+                const edgeMatch = userAgent.match(/Edg(?:e)?\/([0-9.]+)/);
+                if (edgeMatch) {
+                    version = edgeMatch[1];
+                }
+            }
+            else if (browserName === 'Opera') {
+                const match = userAgent.match(/OPR\/([0-9.]+)/);
+                if (match) {
+                    version = match[1];
+                }
+            }
+            else if (browserName === 'Brave') {
+                // First try to get version through Brave API if available
+                if (navigator.brave && navigator.brave.version) {
+                    version = navigator.brave.version;
+                }
+                else {
+                    // Otherwise extract from user agent like Chrome
+                    // Brave uses the same Chrome version string but with Brave/[version]
+                    const braveMatch = userAgent.match(/Brave\/([0-9.]+)/);
+                    if (braveMatch) {
+                        version = braveMatch[1];
+                    }
+                    else {
+                        // Fall back to Chrome version
+                        const chromeMatch = userAgent.match(/Chrome\/([0-9.]+)/);
+                        if (chromeMatch) {
+                            version = chromeMatch[1];
+                        }
+                    }
+                    // Try to access the Brave browser version via JavaScript API if available
+                    if (typeof navigator.brave !== 'undefined') {
+                        try {
+                            // Request brave version info
+                            navigator.brave.isBrave().then((isBrave) => {
+                                if (isBrave) {
+                                    // Remove console log
+                                }
+                            });
+                        }
+                        catch (e) {
+                            // API access failed
+                        }
+                    }
+                }
+            }
+        }
+        catch (e) {
+            // Keep default 'Unknown' value
+        }
+        return version;
+    }
+
     async function createAudioFingerprint() {
         const resultPromise = new Promise((resolve, reject) => {
             try {
@@ -1563,10 +2224,107 @@
     }
     includeComponent('audio', createAudioFingerprint);
 
+    function getCommonPixels(images, width, height) {
+        let finalData = [];
+        for (let i = 0; i < images[0].data.length; i++) {
+            let indice = [];
+            for (let u = 0; u < images.length; u++) {
+                indice.push(images[u].data[i]);
+            }
+            finalData.push(getMostFrequent(indice));
+        }
+        const pixelData = finalData;
+        const pixelArray = new Uint8ClampedArray(pixelData);
+        return new ImageData(pixelArray, width, height);
+    }
+    function getMostFrequent(arr) {
+        if (arr.length === 0) {
+            return 0; // Handle empty array case
+        }
+        const frequencyMap = {};
+        // Count occurrences of each number in the array
+        for (const num of arr) {
+            frequencyMap[num] = (frequencyMap[num] || 0) + 1;
+        }
+        let mostFrequent = arr[0];
+        // Find the number with the highest frequency
+        for (const num in frequencyMap) {
+            if (frequencyMap[num] > frequencyMap[mostFrequent]) {
+                mostFrequent = parseInt(num, 10);
+            }
+        }
+        return mostFrequent;
+    }
+
+    const _RUNS$1 = (getBrowserName() !== 'SamsungBrowser') ? 1 : 3;
+    /**
+     * A simple canvas finger printing function
+     *
+     * @returns a CanvasInfo JSON object
+     */
+    const _WIDTH = 280;
+    const _HEIGHT = 20;
+    function generateCanvasFingerprint() {
+        return new Promise((resolve) => {
+            /**
+             * Since some browsers fudge with the canvas pixels to prevent fingerprinting, the following
+             * creates the canvas three times and getCommonPixels picks the most common byte for each
+             * channel of each pixel.
+             */
+            const imageDatas = Array.from({ length: _RUNS$1 }, () => generateCanvasImageData());
+            const commonImageData = getCommonPixels(imageDatas, _WIDTH, _HEIGHT);
+            resolve({
+                'commonImageDataHash': hash(commonImageData.data.toString()).toString(),
+            });
+        });
+    }
+    function generateCanvasImageData() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            return new ImageData(1, 1);
+        }
+        // Set canvas dimensions
+        canvas.width = _WIDTH;
+        canvas.height = _HEIGHT;
+        // Create rainbow gradient for the background rectangle
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, "red");
+        gradient.addColorStop(1 / 6, "orange");
+        gradient.addColorStop(2 / 6, "yellow");
+        gradient.addColorStop(3 / 6, "green");
+        gradient.addColorStop(4 / 6, "blue");
+        gradient.addColorStop(5 / 6, "indigo");
+        gradient.addColorStop(1, "violet");
+        // Draw background rectangle with the rainbow gradient
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Draw some random text
+        const randomText = 'Random Text WMwmil10Oo';
+        ctx.font = '23.123px Arial';
+        ctx.fillStyle = 'black';
+        ctx.fillText(randomText, -5, 15);
+        // Draw the same text with an offset, different color, and slight transparency
+        ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+        ctx.fillText(randomText, -3.3, 17.7);
+        // Draw a line crossing the image at an arbitrary angle
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(canvas.width * 2 / 7, canvas.height);
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        // Return data URL of the canvas
+        return imageData;
+    }
+    if (getBrowserName() != 'Firefox')
+        includeComponent('canvas', generateCanvasFingerprint);
+
     async function ephemeralIFrame(callback) {
         var _a;
         while (!document.body) {
-            await wait(50);
+            await wait$1(50);
         }
         const iframe = document.createElement('iframe');
         iframe.setAttribute('frameBorder', '0');
@@ -1589,68 +2347,8 @@
             document.body.removeChild(iframe);
         }, 0);
     }
-    function wait(durationMs, resolveWith) {
+    function wait$1(durationMs, resolveWith) {
         return new Promise((resolve) => setTimeout(resolve, durationMs, resolveWith));
-    }
-
-    function getBrowserName() {
-        function identifyChromium() {
-            const ua = navigator.userAgent;
-            if (ua.match(/Chrome/)) {
-                if (navigator.brave !== undefined) {
-                    return 'Brave';
-                }
-                else if (ua.match(/Edg/)) {
-                    return 'Edge';
-                }
-                else if (ua.match(/OPR/)) {
-                    return 'Opera';
-                }
-                return 'Chrome';
-            }
-            else {
-                return 'Chromium';
-            }
-        }
-        function feid() {
-            let toFixedEngineID = 0;
-            let neg = parseInt("-1");
-            try {
-                neg.toFixed(neg);
-            }
-            catch (e) {
-                toFixedEngineID = e.message.length;
-            }
-            return toFixedEngineID;
-        }
-        function isSafari() {
-            return feid() === 44;
-        }
-        function isChrome() {
-            return feid() === 51;
-        }
-        function isFirefox() {
-            return feid() === 25;
-        }
-        function assertEvalToString(value) {
-            return value === eval.toString().length;
-        }
-        function isMSIE() {
-            return (navigator.msSaveBlob !== undefined && assertEvalToString(39));
-        }
-        if (isSafari()) {
-            return 'Safari';
-        }
-        else if (isChrome()) {
-            return identifyChromium();
-        }
-        else if (isFirefox()) {
-            return 'Firefox';
-        }
-        else if (isMSIE()) {
-            return 'Internet Explorer';
-        }
-        return 'Unknown';
     }
 
     const availableFonts = [
@@ -1942,20 +2640,186 @@
     }
     includeComponent('screen', screenDetails);
 
+    const _RUNS = (getBrowserName() !== 'SamsungBrowser') ? 1 : 3;
+    let canvas;
+    let gl = null;
+    function initializeCanvasAndWebGL() {
+        if (typeof document !== 'undefined') {
+            canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 100;
+            gl = canvas.getContext('webgl');
+        }
+    }
+    async function createWebGLFingerprint() {
+        initializeCanvasAndWebGL();
+        try {
+            if (!gl) {
+                throw new Error('WebGL not supported');
+            }
+            const imageDatas = Array.from({ length: _RUNS }, () => createWebGLImageData());
+            // and then checking the most common bytes for each channel of each pixel
+            const commonImageData = getCommonPixels(imageDatas, canvas.width, canvas.height);
+            //const imageData = createWebGLImageData()
+            return {
+                'commonImageHash': hash(commonImageData.data.toString()).toString(),
+            };
+        }
+        catch (error) {
+            return {
+                'webgl': 'unsupported'
+            };
+        }
+    }
+    function createWebGLImageData() {
+        try {
+            if (!gl) {
+                throw new Error('WebGL not supported');
+            }
+            const vertexShaderSource = `
+          attribute vec2 position;
+          void main() {
+              gl_Position = vec4(position, 0.0, 1.0);
+          }
+      `;
+            const fragmentShaderSource = `
+          precision mediump float;
+          void main() {
+              gl_FragColor = vec4(0.812, 0.195, 0.553, 0.921); // Set line color
+          }
+      `;
+            const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+            const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+            if (!vertexShader || !fragmentShader) {
+                throw new Error('Failed to create shaders');
+            }
+            gl.shaderSource(vertexShader, vertexShaderSource);
+            gl.shaderSource(fragmentShader, fragmentShaderSource);
+            gl.compileShader(vertexShader);
+            if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+                throw new Error('Vertex shader compilation failed: ' + gl.getShaderInfoLog(vertexShader));
+            }
+            gl.compileShader(fragmentShader);
+            if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+                throw new Error('Fragment shader compilation failed: ' + gl.getShaderInfoLog(fragmentShader));
+            }
+            const shaderProgram = gl.createProgram();
+            if (!shaderProgram) {
+                throw new Error('Failed to create shader program');
+            }
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                throw new Error('Shader program linking failed: ' + gl.getProgramInfoLog(shaderProgram));
+            }
+            gl.useProgram(shaderProgram);
+            // Set up vertices to form lines
+            const numSpokes = 137;
+            const vertices = new Float32Array(numSpokes * 4);
+            const angleIncrement = (2 * Math.PI) / numSpokes;
+            for (let i = 0; i < numSpokes; i++) {
+                const angle = i * angleIncrement;
+                // Define two points for each line (spoke)
+                vertices[i * 4] = 0; // Center X
+                vertices[i * 4 + 1] = 0; // Center Y
+                vertices[i * 4 + 2] = Math.cos(angle) * (canvas.width / 2); // Endpoint X
+                vertices[i * 4 + 3] = Math.sin(angle) * (canvas.height / 2); // Endpoint Y
+            }
+            const vertexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+            const positionAttribute = gl.getAttribLocation(shaderProgram, 'position');
+            gl.enableVertexAttribArray(positionAttribute);
+            gl.vertexAttribPointer(positionAttribute, 2, gl.FLOAT, false, 0, 0);
+            // Render
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.LINES, 0, numSpokes * 2);
+            const pixelData = new Uint8ClampedArray(canvas.width * canvas.height * 4);
+            gl.readPixels(0, 0, canvas.width, canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
+            const imageData = new ImageData(pixelData, canvas.width, canvas.height);
+            return imageData;
+        }
+        catch (error) {
+            //console.error(error);
+            return new ImageData(1, 1);
+        }
+        finally {
+            if (gl) {
+                // Reset WebGL state
+                gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                gl.useProgram(null);
+                gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+                gl.clearColor(0.0, 0.0, 0.0, 0.0);
+            }
+        }
+    }
+    includeComponent('webgl', createWebGLFingerprint);
+
+    function getInstalledPlugins() {
+        const plugins = [];
+        if (navigator.plugins) {
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                const plugin = navigator.plugins[i];
+                plugins.push([plugin.name, plugin.filename, plugin.description].join("|"));
+            }
+        }
+        return new Promise((resolve) => {
+            resolve({
+                'plugins': plugins
+            });
+        });
+    }
+    includeComponent('plugins', getInstalledPlugins);
+
     async function getSystemDetails() {
         return new Promise((resolve) => {
-            const browser = getBrowserName();
-            console.log(browser);
+            // Get detailed browser information
+            const browserDetails = detectBrowser();
             resolve({
                 'platform': window.navigator.platform,
                 'cookieEnabled': window.navigator.cookieEnabled,
                 'productSub': navigator.productSub,
                 'product': navigator.product,
-                'browser': { 'name': browser },
-                'applePayVersion': getApplePayVersion()
+                'browser': {
+                    'name': browserDetails.name,
+                },
+                'applePayVersion': getApplePayVersion(),
             });
         });
     }
+    /**
+     * Generates a unique browser hash based on various browser characteristics
+     * that can be used for fingerprinting
+     */
+    // function generateBrowserHash(): string {
+    //     const characteristics = [
+    //         navigator.userAgent,
+    //         navigator.language,
+    //         navigator.hardwareConcurrency,
+    //         navigator.deviceMemory,
+    //         navigator.platform,
+    //         screen.colorDepth,
+    //         navigator.maxTouchPoints,
+    //         'chrome' in window ? 'chrome' : 'no-chrome',
+    //         'opr' in window ? 'opera' : 'no-opera',
+    //         'safari' in window ? 'safari' : 'no-safari',
+    //         new Date().getTimezoneOffset(),
+    //         screen.width + 'x' + screen.height
+    //     ];
+    //     // Use simple hashing algorithm
+    //     let hash = 0;
+    //     const str = characteristics.join('||');
+    //     for (let i = 0; i < str.length; i++) {
+    //         const char = str.charCodeAt(i);
+    //         hash = ((hash << 5) - hash) + char;
+    //         hash = hash & hash; // Convert to 32bit integer
+    //     }
+    //     // Convert to hex string
+    //     return (hash >>> 0).toString(16).padStart(8, '0');
+    // }
     /**
      * @returns applePayCanMakePayments: boolean, applePayMaxSupportedVersion: number
      */
@@ -1976,6 +2840,125 @@
         return 0;
     }
     includeComponent('system', getSystemDetails);
+
+    /**
+     * Set of emojis to sample for fingerprinting
+     * These emojis are chosen because they have significant rendering differences across platforms
+     */
+    const TEST_EMOJIS = [
+        '😀', // Basic smiling face - varies significantly
+        '👨‍👩‍👧‍👦', // Family emoji - complex with multiple characters
+        '🇺🇸', // Flag - rendered differently across platforms
+        '🍎', // Apple - varies in color and style
+        '🐼', // Panda - good variation in details
+        '🚀', // Rocket - complex shape with details
+        '🏳️‍🌈', // Rainbow flag - combination character
+        '👍🏽', // Thumbs up with skin tone - tests skin tone rendering
+        '❤️', // Heart with variation selector
+        '🤦‍♂️', // Facepalm with gender - complex combination
+    ];
+    /**
+     * Font families to test for emoji rendering variations
+     */
+    const TEST_FONTS = [
+        'Apple Color Emoji',
+        'Segoe UI Emoji',
+        'Segoe UI Symbol',
+        'Noto Color Emoji',
+        'Android Emoji',
+        'EmojiOne',
+        'Twemoji Mozilla',
+        'sans-serif' // Fallback
+    ];
+    /**
+     * Renders an emoji to a canvas and returns its pixel data
+     * @param emoji The emoji to render
+     * @param fontFamily Font family to use
+     * @returns Uint8ClampedArray of pixels or null if rendering fails
+     */
+    function renderEmojiToCanvas(emoji, fontFamily) {
+        try {
+            // Create canvas and context
+            const canvas = document.createElement('canvas');
+            const size = 20; // Small size is enough for fingerprinting
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            if (!ctx)
+                return null;
+            // Clear background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, size, size);
+            // Draw emoji
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'black';
+            ctx.font = `16px "${fontFamily}"`;
+            ctx.fillText(emoji, size / 2, size / 2);
+            // Get pixel data
+            return ctx.getImageData(0, 0, size, size).data;
+        }
+        catch (e) {
+            return null;
+        }
+    }
+    /**
+     * Creates a simplified fingerprint from pixel data by sampling
+     * @param pixels Canvas pixel data
+     * @returns Simplified representation for fingerprinting
+     */
+    function simplifyPixelData(pixels) {
+        // Sample every 8th pixel for efficiency
+        const simplified = [];
+        for (let i = 0; i < pixels.length; i += 32) {
+            // Use only RGB values (skip alpha)
+            simplified.push(pixels[i], pixels[i + 1], pixels[i + 2]);
+        }
+        return simplified;
+    }
+    /**
+     * Generates a fingerprint based on emoji rendering
+     * @returns Promise that resolves to emoji fingerprint data
+     */
+    async function getEmojiFingerprint() {
+        return new Promise((resolve) => {
+            try {
+                const results = {};
+                let combinedData = [];
+                // Test each emoji with the first available font
+                TEST_EMOJIS.forEach((emoji, index) => {
+                    // Try each font until one works
+                    for (const font of TEST_FONTS) {
+                        const pixelData = renderEmojiToCanvas(emoji, font);
+                        if (pixelData) {
+                            const simplified = simplifyPixelData(pixelData);
+                            combinedData = [...combinedData, ...simplified];
+                            // Store individual emoji hash for detailed fingerprinting
+                            results[`emoji_${index}`] = hash(new Uint8Array(simplified).buffer).slice(0, 16);
+                            break; // Use first successful font
+                        }
+                    }
+                });
+                // Generate a combined hash for all emoji data
+                const combinedHash = hash(new Uint8Array(combinedData).buffer);
+                resolve({
+                    emojiFingerprintHash: combinedHash,
+                    emojiDetails: results,
+                    uniqueEmojisRendered: Object.keys(results).length
+                });
+            }
+            catch (e) {
+                // Fallback in case of any errors
+                resolve({
+                    emojiFingerprintHash: 'unsupported',
+                    emojiDetails: {},
+                    uniqueEmojisRendered: 0
+                });
+            }
+        });
+    }
+    // Register the component
+    includeComponent('emojiFingerprint', getEmojiFingerprint);
 
     const getMathInfo = async () => {
         return {
@@ -2012,17 +2995,668 @@
     };
     includeComponent('math', getMathInfo);
 
+    function wait(durationMs, resolveWith) {
+        return new Promise((resolve) => setTimeout(resolve, durationMs, resolveWith));
+    }
+
+    /*
+     * This file contains functions to work with pure data only (no browser features, DOM, side effects, etc).
+     */
+    /**
+     * Does the same as Array.prototype.includes but has better typing
+     */
+    function countTruthy(values) {
+        return values.reduce((sum, value) => sum + (value ? 1 : 0), 0);
+    }
+    /**
+     * Parses a CSS selector into tag name with HTML attributes.
+     * Only single element selector are supported (without operators like space, +, >, etc).
+     *
+     * Multiple values can be returned for each attribute. You decide how to handle them.
+     */
+    function parseSimpleCssSelector(selector) {
+        var _a, _b;
+        const errorMessage = `Unexpected syntax '${selector}'`;
+        const tagMatch = /^\s*([a-z-]*)(.*)$/i.exec(selector);
+        const tag = tagMatch[1] || undefined;
+        const attributes = {};
+        const partsRegex = /([.:#][\w-]+|\[.+?\])/gi;
+        const addAttribute = (name, value) => {
+            attributes[name] = attributes[name] || [];
+            attributes[name].push(value);
+        };
+        for (;;) {
+            const match = partsRegex.exec(tagMatch[2]);
+            if (!match) {
+                break;
+            }
+            const part = match[0];
+            switch (part[0]) {
+                case '.':
+                    addAttribute('class', part.slice(1));
+                    break;
+                case '#':
+                    addAttribute('id', part.slice(1));
+                    break;
+                case '[': {
+                    const attributeMatch = /^\[([\w-]+)([~|^$*]?=("(.*?)"|([\w-]+)))?(\s+[is])?\]$/.exec(part);
+                    if (attributeMatch) {
+                        addAttribute(attributeMatch[1], (_b = (_a = attributeMatch[4]) !== null && _a !== void 0 ? _a : attributeMatch[5]) !== null && _b !== void 0 ? _b : '');
+                    }
+                    else {
+                        throw new Error(errorMessage);
+                    }
+                    break;
+                }
+                default:
+                    throw new Error(errorMessage);
+            }
+        }
+        return [tag, attributes];
+    }
+
+    /**
+     * Creates a DOM element that matches the given selector.
+     * Only single element selector are supported (without operators like space, +, >, etc).
+     */
+    function selectorToElement(selector) {
+        const [tag, attributes] = parseSimpleCssSelector(selector);
+        const element = document.createElement(tag !== null && tag !== void 0 ? tag : 'div');
+        for (const name of Object.keys(attributes)) {
+            const value = attributes[name].join(' ');
+            // Changing the `style` attribute can cause a CSP error, therefore we change the `style.cssText` property.
+            // https://github.com/fingerprintjs/fingerprintjs/issues/733
+            if (name === 'style') {
+                addStyleString(element.style, value);
+            }
+            else {
+                element.setAttribute(name, value);
+            }
+        }
+        return element;
+    }
+    /**
+     * Adds CSS styles from a string in such a way that doesn't trigger a CSP warning (unsafe-inline or unsafe-eval)
+     */
+    function addStyleString(style, source) {
+        // We don't use `style.cssText` because browsers must block it when no `unsafe-eval` CSP is presented: https://csplite.com/csp145/#w3c_note
+        // Even though the browsers ignore this standard, we don't use `cssText` just in case.
+        for (const property of source.split(';')) {
+            const match = /^\s*([\w-]+)\s*:\s*(.+?)(\s*!([\w-]+))?\s*$/.exec(property);
+            if (match) {
+                const [, name, value, , priority] = match;
+                style.setProperty(name, value, priority || ''); // The last argument can't be undefined in IE11
+            }
+        }
+    }
+
+    /**
+     * Checks whether the browser is based on Chromium without using user-agent.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isChromium() {
+        // Based on research in October 2020. Tested to detect Chromium 42-86.
+        const w = window;
+        const n = navigator;
+        return (countTruthy([
+            'webkitPersistentStorage' in n,
+            'webkitTemporaryStorage' in n,
+            (n.vendor || '').indexOf('Google') === 0,
+            'webkitResolveLocalFileSystemURL' in w,
+            'BatteryManager' in w,
+            'webkitMediaStream' in w,
+            'webkitSpeechGrammar' in w,
+        ]) >= 5);
+    }
+    /**
+     * Checks whether the browser is based on mobile or desktop Safari without using user-agent.
+     * All iOS browsers use WebKit (the Safari engine).
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isWebKit() {
+        // Based on research in August 2024
+        const w = window;
+        const n = navigator;
+        return (countTruthy([
+            'ApplePayError' in w,
+            'CSSPrimitiveValue' in w,
+            'Counter' in w,
+            n.vendor.indexOf('Apple') === 0,
+            'RGBColor' in w,
+            'WebKitMediaKeys' in w,
+        ]) >= 4);
+    }
+    /**
+     * Checks whether the browser is based on Gecko (Firefox engine) without using user-agent.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isGecko() {
+        var _a, _b;
+        const w = window;
+        // Based on research in September 2020
+        return (countTruthy([
+            'buildID' in navigator,
+            'MozAppearance' in ((_b = (_a = document.documentElement) === null || _a === void 0 ? void 0 : _a.style) !== null && _b !== void 0 ? _b : {}),
+            'onmozfullscreenchange' in w,
+            'mozInnerScreenX' in w,
+            'CSSMozDocumentRule' in w,
+            'CanvasCaptureMediaStream' in w,
+        ]) >= 4);
+    }
+    /**
+     * Checks whether the device runs on Android without using user-agent.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isAndroid() {
+        const isItChromium = isChromium();
+        const isItGecko = isGecko();
+        const w = window;
+        const n = navigator;
+        // Chrome removes all words "Android" from `navigator` when desktop version is requested
+        // Firefox keeps "Android" in `navigator.appVersion` when desktop version is requested
+        if (isItChromium) {
+            return (countTruthy([
+                !('SharedWorker' in w),
+                // `typechange` is deprecated, but it's still present on Android (tested on Chrome Mobile 117)
+                // Removal proposal https://bugs.chromium.org/p/chromium/issues/detail?id=699892
+                // Note: this expression returns true on ChromeOS, so additional detectors are required to avoid false-positives
+                // n[c] && 'ontypechange' in n[c],
+                !('sinkId' in new Audio()),
+            ]) >= 2);
+        }
+        else if (isItGecko) {
+            return countTruthy(['onorientationchange' in w, 'orientation' in w, /android/i.test(n.appVersion)]) >= 2;
+        }
+        else {
+            // Only 2 browser engines are presented on Android.
+            // Actually, there is also Android 4.1 browser, but it's not worth detecting it at the moment.
+            return false;
+        }
+    }
+
     // Floating-point calculations (Math.sin(), Math.log()) produce slightly different results across CPUs due to:
     // Extremely hard to spoof without emulating a different CPU.
-    function getCPUFingerprint() {
+    // function getCPUFingerprint(): any {
+    //     return {
+    //       sin1: Math.sin(1),        
+    //       log10: Math.log(10),     
+    //       tanh05: Math.tanh(0.5),      
+    //     };
+    // }
+    var SpecialFingerprint;
+    (function (SpecialFingerprint) {
+        /** The browser doesn't support AudioContext or baseLatency */
+        SpecialFingerprint[SpecialFingerprint["NotSupported"] = -1] = "NotSupported";
+        /** Entropy source is disabled because of console warnings */
+        SpecialFingerprint[SpecialFingerprint["Disabled"] = -2] = "Disabled";
+    })(SpecialFingerprint || (SpecialFingerprint = {}));
+    function getAudioContextBaseLatency() {
+        var _a;
+        // The signal emits warning in Chrome and Firefox, therefore it is enabled on Safari where it doesn't produce warning
+        // and on Android where it's less visible
+        const isAllowedPlatform = isAndroid() || isWebKit();
+        if (!isAllowedPlatform) {
+            return SpecialFingerprint.Disabled;
+        }
+        if (!window.AudioContext) {
+            return SpecialFingerprint.NotSupported;
+        }
+        return (_a = new AudioContext().baseLatency) !== null && _a !== void 0 ? _a : SpecialFingerprint.NotSupported;
+    }
+    /**
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/color-gamut
+     */
+    function getColorGamut() {
+        // rec2020 includes p3 and p3 includes srgb
+        for (const gamut of ['rec2020', 'p3', 'srgb']) {
+            if (matchMedia(`(color-gamut: ${gamut})`).matches) {
+                return gamut;
+            }
+        }
+        return undefined;
+    }
+    function areColorsForced() {
+        if (doesMatch('active')) {
+            return true;
+        }
+        if (doesMatch('none')) {
+            return false;
+        }
+        return undefined;
+    }
+    function doesMatch(value) {
+        return matchMedia(`(forced-colors: ${value})`).matches;
+    }
+    const maxValueToCheck = 100;
+    /**
+     * If the display is monochrome (e.g. black&white), the value will be ≥0 and will mean the number of bits per pixel.
+     * If the display is not monochrome, the returned value will be 0.
+     * If the browser doesn't support this feature, the returned value will be undefined.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/monochrome
+     */
+    function getMonochromeDepth() {
+        if (!matchMedia('(min-monochrome: 0)').matches) {
+            // The media feature isn't supported by the browser
+            return undefined;
+        }
+        // A variation of binary search algorithm can be used here.
+        // But since expected values are very small (≤10), there is no sense in adding the complexity.
+        for (let i = 0; i <= maxValueToCheck; ++i) {
+            if (matchMedia(`(max-monochrome: ${i})`).matches) {
+                return i;
+            }
+        }
+        throw new Error('Too high value');
+    }
+    function getOsCpu() {
+        return navigator.oscpu;
+    }
+    /**
+     * Checks for browser-specific (not engine specific) global variables to tell browsers with the same engine apart.
+     * Only somewhat popular browsers are considered.
+     */
+    function getVendorFlavors() {
+        const flavors = [];
+        for (const key of [
+            // Blink and some browsers on iOS
+            'chrome',
+            // Safari on macOS
+            'safari',
+            // Chrome on iOS (checked in 85 on 13 and 87 on 14)
+            '__crWeb',
+            '__gCrWeb',
+            // Yandex Browser on iOS, macOS and Android (checked in 21.2 on iOS 14, macOS and Android)
+            'yandex',
+            // Yandex Browser on iOS (checked in 21.2 on 14)
+            '__yb',
+            '__ybro',
+            // Firefox on iOS (checked in 32 on 14)
+            '__firefox__',
+            // Edge on iOS (checked in 46 on 14)
+            '__edgeTrackingPreventionStatistics',
+            'webkit',
+            // Opera Touch on iOS (checked in 2.6 on 14)
+            'oprt',
+            // Samsung Internet on Android (checked in 11.1)
+            'samsungAr',
+            // UC Browser on Android (checked in 12.10 and 13.0)
+            'ucweb',
+            'UCShellJava',
+            // Puffin on Android (checked in 9.0)
+            'puffinDevice',
+            // UC on iOS and Opera on Android have no specific global variables
+            // Edge for Android isn't checked
+        ]) {
+            const value = window[key];
+            if (value && typeof value === 'object') {
+                flavors.push(key);
+            }
+        }
+        return flavors.sort();
+    }
+    /**
+     * Only single element selector are supported (no operators like space, +, >, etc).
+     * `embed` and `position: fixed;` will be considered as blocked anyway because it always has no offsetParent.
+     * Avoid `iframe` and anything with `[src=]` because they produce excess HTTP requests.
+     *
+     * The "inappropriate" selectors are obfuscated. See https://github.com/fingerprintjs/fingerprintjs/issues/734.
+     * A function is used instead of a plain object to help tree-shaking.
+     *
+     * The function code is generated automatically. See docs/content_blockers.md to learn how to make the list.
+     */
+    function getFilters() {
+        const fromB64 = atob; // Just for better minification
         return {
-            sin1: Math.sin(1),
-            log10: Math.log(10),
-            tanh05: Math.tanh(0.5),
+            abpIndo: [
+                '#Iklan-Melayang',
+                '#Kolom-Iklan-728',
+                '#SidebarIklan-wrapper',
+                '[title="ALIENBOLA" i]',
+                fromB64('I0JveC1CYW5uZXItYWRz'),
+            ],
+            abpvn: ['.quangcao', '#mobileCatfish', fromB64('LmNsb3NlLWFkcw=='), '[id^="bn_bottom_fixed_"]', '#pmadv'],
+            adBlockFinland: [
+                '.mainostila',
+                fromB64('LnNwb25zb3JpdA=='),
+                '.ylamainos',
+                fromB64('YVtocmVmKj0iL2NsaWNrdGhyZ2guYXNwPyJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9hcHAucmVhZHBlYWsuY29tL2FkcyJd'),
+            ],
+            adBlockPersian: [
+                '#navbar_notice_50',
+                '.kadr',
+                'TABLE[width="140px"]',
+                '#divAgahi',
+                fromB64('YVtocmVmXj0iaHR0cDovL2cxLnYuZndtcm0ubmV0L2FkLyJd'),
+            ],
+            adBlockWarningRemoval: [
+                '#adblock-honeypot',
+                '.adblocker-root',
+                '.wp_adblock_detect',
+                fromB64('LmhlYWRlci1ibG9ja2VkLWFk'),
+                fromB64('I2FkX2Jsb2NrZXI='),
+            ],
+            adGuardAnnoyances: [
+                '.hs-sosyal',
+                '#cookieconsentdiv',
+                'div[class^="app_gdpr"]',
+                '.as-oil',
+                '[data-cypress="soft-push-notification-modal"]',
+            ],
+            adGuardBase: [
+                '.BetterJsPopOverlay',
+                fromB64('I2FkXzMwMFgyNTA='),
+                fromB64('I2Jhbm5lcmZsb2F0MjI='),
+                fromB64('I2NhbXBhaWduLWJhbm5lcg=='),
+                fromB64('I0FkLUNvbnRlbnQ='),
+            ],
+            adGuardChinese: [
+                fromB64('LlppX2FkX2FfSA=='),
+                fromB64('YVtocmVmKj0iLmh0aGJldDM0LmNvbSJd'),
+                '#widget-quan',
+                fromB64('YVtocmVmKj0iLzg0OTkyMDIwLnh5eiJd'),
+                fromB64('YVtocmVmKj0iLjE5NTZobC5jb20vIl0='),
+            ],
+            adGuardFrench: [
+                '#pavePub',
+                fromB64('LmFkLWRlc2t0b3AtcmVjdGFuZ2xl'),
+                '.mobile_adhesion',
+                '.widgetadv',
+                fromB64('LmFkc19iYW4='),
+            ],
+            adGuardGerman: ['aside[data-portal-id="leaderboard"]'],
+            adGuardJapanese: [
+                '#kauli_yad_1',
+                fromB64('YVtocmVmXj0iaHR0cDovL2FkMi50cmFmZmljZ2F0ZS5uZXQvIl0='),
+                fromB64('Ll9wb3BJbl9pbmZpbml0ZV9hZA=='),
+                fromB64('LmFkZ29vZ2xl'),
+                fromB64('Ll9faXNib29zdFJldHVybkFk'),
+            ],
+            adGuardMobile: [
+                fromB64('YW1wLWF1dG8tYWRz'),
+                fromB64('LmFtcF9hZA=='),
+                'amp-embed[type="24smi"]',
+                '#mgid_iframe1',
+                fromB64('I2FkX2ludmlld19hcmVh'),
+            ],
+            adGuardRussian: [
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9hZC5sZXRtZWFkcy5jb20vIl0='),
+                fromB64('LnJlY2xhbWE='),
+                'div[id^="smi2adblock"]',
+                fromB64('ZGl2W2lkXj0iQWRGb3hfYmFubmVyXyJd'),
+                '#psyduckpockeball',
+            ],
+            adGuardSocial: [
+                fromB64('YVtocmVmXj0iLy93d3cuc3R1bWJsZXVwb24uY29tL3N1Ym1pdD91cmw9Il0='),
+                fromB64('YVtocmVmXj0iLy90ZWxlZ3JhbS5tZS9zaGFyZS91cmw/Il0='),
+                '.etsy-tweet',
+                '#inlineShare',
+                '.popup-social',
+            ],
+            adGuardSpanishPortuguese: ['#barraPublicidade', '#Publicidade', '#publiEspecial', '#queTooltip', '.cnt-publi'],
+            adGuardTrackingProtection: [
+                '#qoo-counter',
+                fromB64('YVtocmVmXj0iaHR0cDovL2NsaWNrLmhvdGxvZy5ydS8iXQ=='),
+                fromB64('YVtocmVmXj0iaHR0cDovL2hpdGNvdW50ZXIucnUvdG9wL3N0YXQucGhwIl0='),
+                fromB64('YVtocmVmXj0iaHR0cDovL3RvcC5tYWlsLnJ1L2p1bXAiXQ=='),
+                '#top100counter',
+            ],
+            adGuardTurkish: [
+                '#backkapat',
+                fromB64('I3Jla2xhbWk='),
+                fromB64('YVtocmVmXj0iaHR0cDovL2Fkc2Vydi5vbnRlay5jb20udHIvIl0='),
+                fromB64('YVtocmVmXj0iaHR0cDovL2l6bGVuemkuY29tL2NhbXBhaWduLyJd'),
+                fromB64('YVtocmVmXj0iaHR0cDovL3d3dy5pbnN0YWxsYWRzLm5ldC8iXQ=='),
+            ],
+            bulgarian: [fromB64('dGQjZnJlZW5ldF90YWJsZV9hZHM='), '#ea_intext_div', '.lapni-pop-over', '#xenium_hot_offers'],
+            easyList: [
+                '.yb-floorad',
+                fromB64('LndpZGdldF9wb19hZHNfd2lkZ2V0'),
+                fromB64('LnRyYWZmaWNqdW5reS1hZA=='),
+                '.textad_headline',
+                fromB64('LnNwb25zb3JlZC10ZXh0LWxpbmtz'),
+            ],
+            easyListChina: [
+                fromB64('LmFwcGd1aWRlLXdyYXBbb25jbGljayo9ImJjZWJvcy5jb20iXQ=='),
+                fromB64('LmZyb250cGFnZUFkdk0='),
+                '#taotaole',
+                '#aafoot.top_box',
+                '.cfa_popup',
+            ],
+            easyListCookie: [
+                '.ezmob-footer',
+                '.cc-CookieWarning',
+                '[data-cookie-number]',
+                fromB64('LmF3LWNvb2tpZS1iYW5uZXI='),
+                '.sygnal24-gdpr-modal-wrap',
+            ],
+            easyListCzechSlovak: [
+                '#onlajny-stickers',
+                fromB64('I3Jla2xhbW5pLWJveA=='),
+                fromB64('LnJla2xhbWEtbWVnYWJvYXJk'),
+                '.sklik',
+                fromB64('W2lkXj0ic2tsaWtSZWtsYW1hIl0='),
+            ],
+            easyListDutch: [
+                fromB64('I2FkdmVydGVudGll'),
+                fromB64('I3ZpcEFkbWFya3RCYW5uZXJCbG9jaw=='),
+                '.adstekst',
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly94bHR1YmUubmwvY2xpY2svIl0='),
+                '#semilo-lrectangle',
+            ],
+            easyListGermany: [
+                '#SSpotIMPopSlider',
+                fromB64('LnNwb25zb3JsaW5rZ3J1ZW4='),
+                fromB64('I3dlcmJ1bmdza3k='),
+                fromB64('I3Jla2xhbWUtcmVjaHRzLW1pdHRl'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9iZDc0Mi5jb20vIl0='),
+            ],
+            easyListItaly: [
+                fromB64('LmJveF9hZHZfYW5udW5jaQ=='),
+                '.sb-box-pubbliredazionale',
+                fromB64('YVtocmVmXj0iaHR0cDovL2FmZmlsaWF6aW9uaWFkcy5zbmFpLml0LyJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9hZHNlcnZlci5odG1sLml0LyJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9hZmZpbGlhemlvbmlhZHMuc25haS5pdC8iXQ=='),
+            ],
+            easyListLithuania: [
+                fromB64('LnJla2xhbW9zX3RhcnBhcw=='),
+                fromB64('LnJla2xhbW9zX251b3JvZG9z'),
+                fromB64('aW1nW2FsdD0iUmVrbGFtaW5pcyBza3lkZWxpcyJd'),
+                fromB64('aW1nW2FsdD0iRGVkaWt1b3RpLmx0IHNlcnZlcmlhaSJd'),
+                fromB64('aW1nW2FsdD0iSG9zdGluZ2FzIFNlcnZlcmlhaS5sdCJd'),
+            ],
+            estonian: [fromB64('QVtocmVmKj0iaHR0cDovL3BheTRyZXN1bHRzMjQuZXUiXQ==')],
+            fanboyAnnoyances: ['#ac-lre-player', '.navigate-to-top', '#subscribe_popup', '.newsletter_holder', '#back-top'],
+            fanboyAntiFacebook: ['.util-bar-module-firefly-visible'],
+            fanboyEnhancedTrackers: [
+                '.open.pushModal',
+                '#issuem-leaky-paywall-articles-zero-remaining-nag',
+                '#sovrn_container',
+                'div[class$="-hide"][zoompage-fontsize][style="display: block;"]',
+                '.BlockNag__Card',
+            ],
+            fanboySocial: ['#FollowUs', '#meteored_share', '#social_follow', '.article-sharer', '.community__social-desc'],
+            frellwitSwedish: [
+                fromB64('YVtocmVmKj0iY2FzaW5vcHJvLnNlIl1bdGFyZ2V0PSJfYmxhbmsiXQ=='),
+                fromB64('YVtocmVmKj0iZG9rdG9yLXNlLm9uZWxpbmsubWUiXQ=='),
+                'article.category-samarbete',
+                fromB64('ZGl2LmhvbGlkQWRz'),
+                'ul.adsmodern',
+            ],
+            greekAdBlock: [
+                fromB64('QVtocmVmKj0iYWRtYW4ub3RlbmV0LmdyL2NsaWNrPyJd'),
+                fromB64('QVtocmVmKj0iaHR0cDovL2F4aWFiYW5uZXJzLmV4b2R1cy5nci8iXQ=='),
+                fromB64('QVtocmVmKj0iaHR0cDovL2ludGVyYWN0aXZlLmZvcnRobmV0LmdyL2NsaWNrPyJd'),
+                'DIV.agores300',
+                'TABLE.advright',
+            ],
+            hungarian: [
+                '#cemp_doboz',
+                '.optimonk-iframe-container',
+                fromB64('LmFkX19tYWlu'),
+                fromB64('W2NsYXNzKj0iR29vZ2xlQWRzIl0='),
+                '#hirdetesek_box',
+            ],
+            iDontCareAboutCookies: [
+                '.alert-info[data-block-track*="CookieNotice"]',
+                '.ModuleTemplateCookieIndicator',
+                '.o--cookies--container',
+                '#cookies-policy-sticky',
+                '#stickyCookieBar',
+            ],
+            icelandicAbp: [fromB64('QVtocmVmXj0iL2ZyYW1ld29yay9yZXNvdXJjZXMvZm9ybXMvYWRzLmFzcHgiXQ==')],
+            latvian: [
+                fromB64('YVtocmVmPSJodHRwOi8vd3d3LnNhbGlkemluaS5sdi8iXVtzdHlsZT0iZGlzcGxheTogYmxvY2s7IHdpZHRoOiAxMjBweDsgaGVpZ2h0O' +
+                    'iA0MHB4OyBvdmVyZmxvdzogaGlkZGVuOyBwb3NpdGlvbjogcmVsYXRpdmU7Il0='),
+                fromB64('YVtocmVmPSJodHRwOi8vd3d3LnNhbGlkemluaS5sdi8iXVtzdHlsZT0iZGlzcGxheTogYmxvY2s7IHdpZHRoOiA4OHB4OyBoZWlnaHQ6I' +
+                    'DMxcHg7IG92ZXJmbG93OiBoaWRkZW47IHBvc2l0aW9uOiByZWxhdGl2ZTsiXQ=='),
+            ],
+            listKr: [
+                fromB64('YVtocmVmKj0iLy9hZC5wbGFuYnBsdXMuY28ua3IvIl0='),
+                fromB64('I2xpdmVyZUFkV3JhcHBlcg=='),
+                fromB64('YVtocmVmKj0iLy9hZHYuaW1hZHJlcC5jby5rci8iXQ=='),
+                fromB64('aW5zLmZhc3R2aWV3LWFk'),
+                '.revenue_unit_item.dable',
+            ],
+            listeAr: [
+                fromB64('LmdlbWluaUxCMUFk'),
+                '.right-and-left-sponsers',
+                fromB64('YVtocmVmKj0iLmFmbGFtLmluZm8iXQ=='),
+                fromB64('YVtocmVmKj0iYm9vcmFxLm9yZyJd'),
+                fromB64('YVtocmVmKj0iZHViaXp6bGUuY29tL2FyLz91dG1fc291cmNlPSJd'),
+            ],
+            listeFr: [
+                fromB64('YVtocmVmXj0iaHR0cDovL3Byb21vLnZhZG9yLmNvbS8iXQ=='),
+                fromB64('I2FkY29udGFpbmVyX3JlY2hlcmNoZQ=='),
+                fromB64('YVtocmVmKj0id2Vib3JhbWEuZnIvZmNnaS1iaW4vIl0='),
+                '.site-pub-interstitiel',
+                'div[id^="crt-"][data-criteo-id]',
+            ],
+            officialPolish: [
+                '#ceneo-placeholder-ceneo-12',
+                fromB64('W2hyZWZePSJodHRwczovL2FmZi5zZW5kaHViLnBsLyJd'),
+                fromB64('YVtocmVmXj0iaHR0cDovL2Fkdm1hbmFnZXIudGVjaGZ1bi5wbC9yZWRpcmVjdC8iXQ=='),
+                fromB64('YVtocmVmXj0iaHR0cDovL3d3dy50cml6ZXIucGwvP3V0bV9zb3VyY2UiXQ=='),
+                fromB64('ZGl2I3NrYXBpZWNfYWQ='),
+            ],
+            ro: [
+                fromB64('YVtocmVmXj0iLy9hZmZ0cmsuYWx0ZXgucm8vQ291bnRlci9DbGljayJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9ibGFja2ZyaWRheXNhbGVzLnJvL3Ryay9zaG9wLyJd'),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9ldmVudC4ycGVyZm9ybWFudC5jb20vZXZlbnRzL2NsaWNrIl0='),
+                fromB64('YVtocmVmXj0iaHR0cHM6Ly9sLnByb2ZpdHNoYXJlLnJvLyJd'),
+                'a[href^="/url/"]',
+            ],
+            ruAd: [
+                fromB64('YVtocmVmKj0iLy9mZWJyYXJlLnJ1LyJd'),
+                fromB64('YVtocmVmKj0iLy91dGltZy5ydS8iXQ=='),
+                fromB64('YVtocmVmKj0iOi8vY2hpa2lkaWtpLnJ1Il0='),
+                '#pgeldiz',
+                '.yandex-rtb-block',
+            ],
+            thaiAds: [
+                'a[href*=macau-uta-popup]',
+                fromB64('I2Fkcy1nb29nbGUtbWlkZGxlX3JlY3RhbmdsZS1ncm91cA=='),
+                fromB64('LmFkczMwMHM='),
+                '.bumq',
+                '.img-kosana',
+            ],
+            webAnnoyancesUltralist: [
+                '#mod-social-share-2',
+                '#social-tools',
+                fromB64('LmN0cGwtZnVsbGJhbm5lcg=='),
+                '.zergnet-recommend',
+                '.yt.btn-link.btn-md.btn',
+            ],
         };
     }
-    // includeComponent('navigator', navigatorProperties)
-    includeComponent('CPU', getCPUFingerprint);
+    /**
+     * The order of the returned array means nothing (it's always sorted alphabetically).
+     *
+     * Notice that the source is slightly unstable.
+     * Safari provides a 2-taps way to disable all content blockers on a page temporarily.
+     * Also content blockers can be disabled permanently for a domain, but it requires 4 taps.
+     * So empty array shouldn't be treated as "no blockers", it should be treated as "no signal".
+     * If you are a website owner, don't make your visitors want to disable content blockers.
+     */
+    async function getDomBlockers() {
+        if (!isApplicable()) {
+            return undefined;
+        }
+        const filters = getFilters();
+        const filterNames = Object.keys(filters);
+        const allSelectors = [].concat(...filterNames.map((filterName) => filters[filterName]));
+        const blockedSelectors = await getBlockedSelectors(allSelectors);
+        const activeBlockers = filterNames.filter((filterName) => {
+            const selectors = filters[filterName];
+            const blockedCount = countTruthy(selectors.map((selector) => blockedSelectors[selector]));
+            return blockedCount > selectors.length * 0.6;
+        });
+        activeBlockers.sort();
+        return activeBlockers;
+    }
+    function isApplicable() {
+        // Safari (desktop and mobile) and all Android browsers keep content blockers in both regular and private mode
+        return isWebKit() || isAndroid();
+    }
+    async function getBlockedSelectors(selectors) {
+        var _a;
+        const d = document;
+        const root = d.createElement('div');
+        const elements = new Array(selectors.length);
+        const blockedSelectors = {}; // Set() isn't used just in case somebody need older browser support
+        forceShow(root);
+        // First create all elements that can be blocked. If the DOM steps below are done in a single cycle,
+        // browser will alternate tree modification and layout reading, that is very slow.
+        for (let i = 0; i < selectors.length; ++i) {
+            const element = selectorToElement(selectors[i]);
+            if (element.tagName === 'DIALOG') {
+                element.show();
+            }
+            const holder = d.createElement('div'); // Protects from unwanted effects of `+` and `~` selectors of filters
+            forceShow(holder);
+            holder.appendChild(element);
+            root.appendChild(holder);
+            elements[i] = element;
+        }
+        // document.body can be null while the page is loading
+        while (!d.body) {
+            await wait(50);
+        }
+        d.body.appendChild(root);
+        try {
+            // Then check which of the elements are blocked
+            for (let i = 0; i < selectors.length; ++i) {
+                if (!elements[i].offsetParent) {
+                    blockedSelectors[selectors[i]] = true;
+                }
+            }
+        }
+        finally {
+            // Then remove the elements
+            (_a = root.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(root);
+        }
+        return blockedSelectors;
+    }
+    function forceShow(element) {
+        element.style.setProperty('visibility', 'hidden', 'important');
+        element.style.setProperty('display', 'block', 'important');
+    }
+    includeComponent('domBlockers', getDomBlockers);
+    includeComponent('vendorFlavour', getVendorFlavors);
+    includeComponent('monochrome', getMonochromeDepth);
+    includeComponent('forcedColors', areColorsForced);
+    includeComponent('colorGamut', getColorGamut);
+    includeComponent('osCpu', getOsCpu);
+    includeComponent('audioLatency', getAudioContextBaseLatency);
 
     function trackBehaviour(config) {
         return [];
@@ -2031,8 +3665,20 @@
     // Import the functions we need
     // Export a named object for combined functionality
     const rayyanJS = {
+        // Basic device functions
+        getFingerprint,
+        detectBrowser,
+        detectTorBrowser,
+        detectIncognito,
+        botDetection,
+        trackBehaviour,
+        // Organized by module (for backwards compatibility)
         device: {
-            getFingerprint
+            getFingerprint,
+            detectBrowser,
+            detectTorBrowser,
+            detectIncognito,
+            botDetection
         },
         behaviour: {
             trackBehaviour
@@ -2040,6 +3686,7 @@
     };
 
     exports.botDetection = botDetection;
+    exports.detectBrowser = detectBrowser;
     exports.detectIncognito = detectIncognito;
     exports.detectTorBrowser = detectTorBrowser;
     exports.getFingerprint = getFingerprint;
